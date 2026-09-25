@@ -1,0 +1,98 @@
+have you notice also i hide the assistance needed remember my prof said every brgy has needs
+when brgy appointed an evac center it will declare also the population of pregnants children..etcc other important priority people which is i dont know
+then phoadmin (including subrole) and pcfadmin (including subrole) will see those important list in that evac center in their dashboard my prof said and they will donate or send assistance
+and also they can see who donated what to where to blah blah.. i cant form a term for it
+any analogy or ascll txt diagram can help
+2:02 PM
+Thought
+Yes — and there are real official terms for both things you're describing. Let me name them, then diagram it.
+The terminology you're looking for
+What you described
+Official term
+"pregnants, children, etc… important priority people"
+Vulnerable Sectors (or priority/vulnerable groups) — standard DRRM/DSWD language
+The per-evac-center breakdown of those counts
+Evacuation Center Vulnerability Profile (or Needs Assessment)
+"every brgy has needs"
+Request for Assistance (RFA) — the actual term used in LGU/NDRRMC paperwork
+"who donated what to where"
+Assistance Ledger / Resource Mobilization Tracker — NDRRMC SitReps call this "Assistance Extended"
+Nice bonus: your DAFAC form already uses these codes — remember Code: A - Older Person, B - Lactating Mother, C - PWD. So you're not inventing categories; you're reusing DSWD's own vulnerable-sector codes. That's a strong defense point.
+The analogy that makes it click
+It's a gift registry (like a wedding/baby registry) for disaster relief.
+The evacuation center posts what it needs ("we have 12 pregnant women → we need maternity kits")
+Donors (PCF/PHO) see the list and claim items ("MDRRMO will send 20 maternity kits")
+The registry shows what's already fulfilled vs. still needed, so nobody sends 500 sacks of rice to one barangay while another gets zero
+That last part is the real problem it solves: uncoordinated duplicate donations. Same theme as your whole capstone — structure prevents waste and blind spots.
+ASCII: where the vulnerable-sector data comes from
+┌──────────────────────────────────────────────────────────────┐
+│  EVACUATION CENTER — Agbago Elementary School                 │
+│  Linked to Incident #032 (Flood)      Capacity: 250           │
+├──────────────────────────────────────────────────────────────┤
+│  Total Evacuees: 140     Families: 28                         │
+│                                                                │
+│  ── VULNERABLE SECTOR PROFILE ──────────────────────────────  │
+│  🤰 Pregnant Women .............. 4                            │
+│  🍼 Lactating Mothers (Code B) ... 7                           │
+│  👶 Infants (0–2 yrs) ........... 9                            │
+│  🧒 Children (3–12 yrs) ......... 31                           │
+│  👴 Older Persons (Code A) ...... 18                           │
+│  ♿ PWD (Code C) ................ 5                            │
+│  🤒 With Illness ................ 6                            │
+│  🩹 Injured ..................... 2                            │
+└──────────────────────────────────────────────────────────────┘
+         ▲
+         │ auto-computed from DAFAC family records
+         │ (DSWD registers families → system sums the codes)
+         │
+   No manual counting — the numbers ARE the DAFAC data
+​
+Key design insight: the barangay shouldn't hand-type these counts. They're already inside DSWD's DAFAC records (ages, sex, health condition, Code A/B/C). Let the system aggregate them automatically — that way the vulnerable-sector profile is derived evidence, not another number someone guessed.
+ASCII: the assistance flow (RFA → pledge → delivered)
+   BARANGAY / EVAC CENTER              PCF & PHO DASHBOARDS
+   ┌────────────────────┐              ┌────────────────────────┐
+   │ Vulnerable Profile │──────────────▶ "Agbago EC needs:"     │
+   │ 4 pregnant, 9 inf. │   visible     │  ⚠ 4 pregnant women    │
+   └─────────┬──────────┘               │  ⚠ 9 infants           │
+             │                          └──────────┬─────────────┘
+             ▼                                     │
+   ┌────────────────────┐                          ▼
+   │ REQUEST FOR        │              ┌────────────────────────┐
+   │ ASSISTANCE (RFA)   │              │ PCF (MDRRMO):          │
+   │ ─ 50 food packs    │              │  [Pledge] 50 food packs│
+   │ ─ 20 maternity kits│              │ PHO (Health):          │
+   │ ─ 30 hygiene kits  │              │  [Pledge] 20 maternity │
+   └─────────┬──────────┘              │           kits         │
+             │                          └──────────┬─────────────┘
+             ▼                                     ▼
+   ┌───────────────────────────────────────────────────────────┐
+   │  ASSISTANCE LEDGER (who gave what, to where, when)         │
+   │  Date    Donor        Item            Qty   Destination    │
+   │  Sep 5   PCF/MDRRMO   Food packs      50    Agbago EC  ✅  │
+   │  Sep 5   PHO Ibajay   Maternity kits  20    Agbago EC  🚚  │
+   │  Sep 6   PDRRMO       Hygiene kits    30    Naisud EC  ⏳  │
+   │          ✅ Delivered   🚚 In transit   ⏳ Pledged only     │
+   └───────────────────────────────────────────────────────────┘
+​
+ASCII: what PCF/PHO see on their dashboard
+┌────────────────────────────────────────────────────────────────┐
+│  PCF Dashboard — Ibajay          [mdr_ibajay ▾]                │
+├────────────────────────────────────────────────────────────────┤
+│  🔴 UNMET NEEDS  (sorted by urgency)                           │
+│  ┌──────────────────────────────────────────────────────────┐ │
+│  │ Agbago EC    4 pregnant, 9 infants   Needs: 20 maternity │ │
+│  │              140 evacuees             kits  ⏳ UNMET      │ │
+│  │                                       [Pledge Assistance] │ │
+│  ├──────────────────────────────────────────────────────────┤ │
+│  │ Naisud EC    18 older persons, 5 PWD  Needs: 30 hygiene  │ │
+│  │              62 evacuees              kits  🚚 IN TRANSIT │ │
+│  ├──────────────────────────────────────────────────────────┤ │
+│  │ Batuan EC    2 pregnant               Needs: food packs  │ │
+│  │              12 evacuees                    ✅ FULFILLED  │ │
+│  └──────────────────────────────────────────────────────────┘ │
+│                                                                  │
+│  MY PLEDGES: 3 active   |   DELIVERED THIS WEEK: 8              │
+│  ⚠ 2 evac centers have ZERO assistance pledged                  │
+└────────────────────────────────────────────────────────────────┘
+​
+That last warning line — "2 evac centers have ZERO assistance pledged" — is the single most valuable thing this feature produces. It's the coordination gap that verbal/radio reporting can never surface.

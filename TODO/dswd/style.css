@@ -1,0 +1,475 @@
+/* Reset and Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background-color: #555;
+  display: flex;
+  justify-content: center;
+}
+
+.dafac-form {
+  width: 900px;
+  background: white;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 40px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+/* Form Sections General */
+.form-section {
+  border: 2px solid #000;
+  padding: 15px;
+  margin-bottom: 20px;
+  page-break-inside: avoid;
+}
+
+.form-section h2, .form-section h3 {
+  text-align: center;
+  margin: 0 0 15px 0;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.form-section h2 { font-size: 14px; }
+.form-section h3 { font-size: 13px; text-align: left; background: #e0e0e0; padding: 3px 5px; margin-top: -15px; margin-left: -15px; margin-right: -15px; border-bottom: 2px solid #000;}
+
+/* Input Styling */
+input[type="text"], input[type="date"], input[type="number"], select {
+  border: none;
+  border-bottom: 1px solid #000;
+  padding: 2px 0;
+  font-family: 'Courier New', Courier, monospace; /* Monospace to look like a typewriter/fill */
+  font-size: 13px;
+  background: transparent;
+  width: 100%;
+}
+
+input:focus, select:focus {
+  outline: none;
+  background-color: #ffffcc;
+  border-bottom: 2px solid #0066cc;
+}
+
+/* Layout Utilities */
+.form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form-field.full-width {
+  flex: 100%;
+}
+
+.form-field-inline {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.form-field-inline label, .form-field label {
+  font-weight: bold;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Header Section */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+}
+.header-left {
+  width: 60%;
+}
+.header-right {
+  width: 35%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+}
+.serial-box label {
+  font-size: 14px;
+}
+.serial-box input {
+  font-size: 16px;
+  font-weight: bold;
+  color: red; /* Often serials are stamped in red */
+}
+
+/* Family Head Section */
+.name-box {
+  margin-top: 15px;
+}
+.demo-info-row {
+  display: flex;
+  gap: 30px;
+  margin-top: 10px;
+  align-items: flex-end;
+}
+.dob-input { width: 120px !important; }
+.age-input { width: 50px !important; text-align: center; }
+.occupation-field { flex: 2; }
+.income-field { flex: 1; }
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.check-row {
+  margin-top: 15px;
+  border-top: 1px dotted #ccc;
+  padding-top: 10px;
+}
+.ip-group input[type="text"] { width: 150px; }
+
+/* Tables (Members & Assistance) */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  border: 1px solid #000;
+  padding: 5px;
+  text-align: left;
+  font-size: 11px;
+}
+
+th {
+  background: #f0f0f0;
+  font-weight: bold;
+  text-align: center;
+}
+
+td input[type="text"], td input[type="date"], td input[type="number"], td select {
+  border: none !important;
+  padding: 2px;
+  width: 100%;
+  background: transparent;
+}
+
+.table-date { width: 80px !important; }
+.table-age { width: 40px !important; text-align: center; }
+
+/* Housing & Health Section */
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+.status-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.status-group > label {
+  font-weight: bold;
+}
+.small-input {
+  width: 80px !important;
+}
+
+/* Signatures Section */
+.signatures {
+  border-top: 2px solid #000;
+  border-bottom: 2px solid #000;
+  border-left: none;
+  border-right: none;
+  padding: 10px 0;
+  margin: 20px 0;
+}
+.sig-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.signature-line {
+  min-width: 250px;
+  border-bottom: 1px solid #000;
+  color: transparent;
+  user-select: none;
+}
+
+/* Actions Section */
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+button {
+  padding: 10px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #e0e0e0;
+  border: 1px solid #666;
+  border-radius: 3px;
+}
+
+button:hover {
+  background-color: #d0d0d0;
+}
+
+.btn-print-pdf {
+  background-color: #0056b3;
+  color: white;
+  border-color: #004085;
+}
+.btn-print-pdf:hover { background-color: #004085; }
+
+/* Notification */
+.notification {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #d4edda;
+  color: #155724;
+  padding: 10px;
+  border: 1px solid #c3e6cb;
+  border-radius: 3px;
+  font-weight: bold;
+  z-index: 100;
+}
+
+/* New Layout Styles (Revisions) */
+.housing-health-new {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+.hh-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #000;
+}
+.hh-right {
+  flex: 1;
+  border: 2px solid #000;
+  padding: 10px;
+}
+.hh-partition {
+  border-bottom: 1px solid #000;
+  padding: 8px;
+}
+.hh-partition:last-child {
+  border-bottom: none;
+}
+.partition-codes {
+  text-align: center;
+  font-weight: bold;
+}
+.partition-condition, .partition-health {
+  display: flex;
+}
+.partition-label {
+  width: 120px;
+  font-weight: bold;
+  border-right: 1px solid #000;
+  padding-right: 5px;
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
+}
+.partition-checks-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  width: 100%;
+}
+.housing-options-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.signatures-new {
+  border-top: 2px solid #000;
+  border-bottom: 2px solid #000;
+  padding: 15px 0;
+  margin: 20px 0;
+  display: flex;
+  justify-content: space-between;
+}
+.sig-left {
+  width: 45%;
+}
+.sig-right {
+  width: 45%;
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+}
+.sig-box {
+  text-align: center;
+  margin-top: 40px;
+}
+.sig-label {
+  font-size: 11px;
+  font-weight: bold;
+  margin-top: 3px;
+}
+.pic-box {
+  width: 100px;
+  height: 100px;
+  border: 2px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.head-sig-box {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.assistance-table-new th {
+  font-size: 10px;
+  padding: 3px;
+}
+.disaster-input {
+  width: 150px !important;
+  font-size: 12px;
+  font-weight: normal;
+  text-align: center;
+}
+
+/* New Layout Styles (Image Matched Revisions) */
+
+/* Header Top */
+.header-top {
+  display: flex;
+  align-items: center;
+  position: relative;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+.header-logo {
+  position: absolute;
+  left: 0;
+  width: 120px;
+  height: auto;
+}
+
+/* Head of Family */
+.head-top-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.head-names {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+.name-inputs, .name-labels {
+  display: flex;
+  gap: 10px;
+}
+.name-inputs input {
+  flex: 1;
+  text-align: center;
+}
+.name-labels span {
+  flex: 1;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+}
+.head-gender-age {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-left: 20px;
+  padding-bottom: 5px;
+}
+.head-mid-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+.head-mid-field {
+  flex: 1;
+  text-align: center;
+}
+.head-mid-field span {
+  font-size: 10px;
+  font-weight: bold;
+}
+.head-bot-row {
+  display: flex;
+  align-items: center;
+}
+
+/* New Signatures */
+.signatures-final {
+  border: 2px solid #000;
+  padding: 20px;
+  margin: 20px 0;
+  display: flex;
+  justify-content: space-between;
+}
+.sig-final-left {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.sig-final-right {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: none;
+    padding: 0;
+  }
+  .dafac-form {
+    box-shadow: none;
+    margin: 0;
+    padding: 20px; /* Reduced for print */
+    width: 100%;
+  }
+  .no-print {
+    display: none !important;
+  }
+  input::placeholder {
+    color: transparent;
+  }
+  input, select {
+    border-bottom: 1px solid #000 !important;
+    background: transparent !important;
+  }
+}

@@ -1,0 +1,164 @@
+Philippine Standard Geographic Code (PSGC) API Documentation  
+ 
+Overview
+The Philippine Standard Geographic Code (PSGC) API provides access to the official geographic classification system of the Philippines. This API enables users to retrieve comprehensive information about the country’s regions, provinces, cities, municipalities, and barangays, all organized according to the official PSGC codes.
+
+The API supports multiple PSGC versions, reflecting updates and administrative changes over time. This makes it suitable for applications that require accurate, authoritative, and up-to-date geographic data.
+
+Key Benefits
+Integrate official geographic reference data into web and mobile applications.
+
+Perform statistical and demographic analysis using standardized location codes.
+
+Track changes in administrative boundaries and subdivisions across PSGC versions.
+
+Ensure consistency in reporting, mapping, and data interoperability across systems.
+
+For more information, visit the official PSA PSGC page: https://psa.gov.ph/classification/psgc.  
+ 
+Base URL
+https://classification.psa.gov.ph/psgc
+
+Endpoint
+GET {baseURL}/{version}/{level}?token={your_token}
+
+}
+{version}/municipalities	Retrieve all municipalities and cities.	https://classification.psa.gov.ph/psgc/Q2_2024/municipalities?token={your_token}
+{version}/barangays	Retrieve all barangays.	https://classification.psa.gov.ph/psgc/Q2_2024/barangays?token={your_token}
+{version}/income_classification	Retrieve income classification for municipalities and cities.	https://classification.psa.gov.ph/psgc/Q2_2024/income_classification?token={your_token}
+{version}/urban_rural	Retrieve urban or rural classification.	https://classification.psa.gov.ph/psgc/Q2_2024/urban_rural?token={your_token}
+{version}/city_class	Retrieve city classification data.	https://classification.psa.gov.ph/psgc/Q2_2024/city_class?token={your_token}
+Note:   
+Replace {version} with the desired PSGC version (e.g., Q2_2024, Q4_2023, etc.), and {your_token} with your actual access token.
+
+Available Endpoints
+Endpoint
+
+Description
+
+Sample URL
+
+{version}/psgc	Retrieve all geographic classifications.	https://classification.psa.gov.ph/psgc/Q2_2024/all?token={your_token}
+{version}/regions	Retrieve all regions.	https://classification.psa.gov.ph/psgc/Q2_2024/regions?token={your_token}
+{version}/provinces	Retrieve all provinces.	https://classification.psa.gov.ph/psgc/Q2_2024/provinces?token={your_token}
+{version}/municipalities	Retrieve all municipalities and cities.	https://classification.psa.gov.ph/psgc/Q2_2024/municipalities?token={your_token}
+{version}/barangays	Retrieve all barangays.	https://classification.psa.gov.ph/psgc/Q2_2024/barangays?token={your_token}
+{version}/income_classification	Retrieve income classification for municipalities and cities.	https://classification.psa.gov.ph/psgc/Q2_2024/income_classification?token={your_token}
+{version}/urban_rural	Retrieve urban or rural classification.	https://classification.psa.gov.ph/psgc/Q2_2024/urban_rural?token={your_token}
+{version}/city_class	Retrieve city classification data.	https://classification.psa.gov.ph/psgc/Q2_2024/city_class?token={your_token}
+Note:   
+Replace {version} with the desired PSGC version (e.g., Q2_2024, Q4_2023, etc.), and {your_token} with your actual access token.
+
+Query Parameters
+Parameter
+
+Type
+
+Description
+
+bgy	string	Filter by barangay code
+mun	string	Filter by municipality code
+prv	string	Filter by province code
+reg	string	Filter by region code
+page	integer	Page number for paginated results
+page_size	integer	Number of items per page
+Response Codes
+Code
+
+Description
+
+200	Request was successful.
+400	Bad Request. Invalid parameters or query.
+404	Resource not found.
+500	Internal Server Error. Unexpected issue.
+Sample Response: Provincial Level
+
+                {
+                        "psgc_code": "0102800000",
+                        "area_name": "Ilocos Norte",
+                        "correspondence_code": "012800000",
+                        "geographic_level": "Prov",
+                        "reg": 1,
+                        "prv": 28,
+                        "mun": 0,
+                        "bgy": 0,
+                        "old_name": "",
+                        "city_class": "",
+                        "income_classification": "1st",
+                        "urban_rural": "",
+                        "island_region": "Luzon",
+                        "status": "",
+                        "version": "Q2_2024",
+                        "population_data": [
+                            {
+                                "code": "0102800000",
+                                "population": "593,081",
+                                "year": 2015
+                            },
+                            {
+                                "code": "0102800000",
+                                "population": "609,588",
+                                "year": 2020
+                            }
+                        ]
+                    },
+                    {
+                        "psgc_code": "0102900000",
+                        "area_name": "Ilocos Sur",
+                        "correspondence_code": "012900000",
+                        "geographic_level": "Prov",
+                        "reg": 1,
+                        "prv": 29,
+                        "mun": 0,
+                        "bgy": 0,
+                        "old_name": "",
+                        "city_class": "",
+                        "income_classification": "1st",
+                        "urban_rural": "",
+                        "island_region": "Luzon",
+                        "status": "",
+                        "version": "Q2_2024",
+                        "population_data": [
+                            {
+                                "code": "0102900000",
+                                "population": "689,668",
+                                "year": 2015
+                            },
+                            {
+                                "code": "0102900000",
+                                "population": "706,009",
+                                "year": 2020
+                            }
+                        ]
+                    }
+                    
+Versioning
+The PSGC is regularly updated to reflect changes in geographic classifications. The API supports accessing different versions, which can be specified in the URL. Future versions will be added as updates occur.
+
+Usage Example in Postman
+To test this API in Postman, follow these steps:
+
+Set up the request:
+
+Choose the HTTP method GET.
+
+Use the URL format:
+
+Replace the placeholders:
+
+Replace {version} with the desired version, e.g., Q2_2024.
+
+Replace {level} with the desired level, e.g., provinces.
+
+Replace {your_token} with your actual token.
+
+Example Request:
+
+To retrieve all provinces for version Q2_2024, the URL would be:
+
+https://classification.psa.gov.ph/psgc/Q2_2024/provinces?token={your_token}
+Send the request in Postman and check the response.  
+ 
+
+Conclusion
+The PSGC API provides a powerful and flexible way to access the official geographic classifications of the Philippines. By utilizing Postman for sending GET requests, users can easily interact with the API to retrieve geographic data for regions, provinces, cities, municipalities, and barangays across different PSGC versions.
