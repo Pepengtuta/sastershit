@@ -116,6 +116,7 @@ $ledgerSql = "SELECT a.*, ec.center_name, ec.barangay, ec.municipality, n.item A
               FROM evac_assistance a
               INNER JOIN evacuation_centers ec ON ec.id = a.evac_center_id
               LEFT JOIN evac_center_needs n ON n.id = a.need_id
+              WHERE 1 = 1
               $V_muni_where
               ORDER BY a.created_at DESC, a.id DESC";
 $ledgerStmt = mysqli_prepare($connection, $ledgerSql);

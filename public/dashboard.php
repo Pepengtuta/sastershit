@@ -5,10 +5,11 @@ include "../config/db_connection.php";
 include "../app/includes/header.php";
 include "../app/includes/sidebar.php";
 
-$V_role = $_SESSION['role'];
+$V_role = $_SESSION['role'] ?? '';
 $V_sub_role = $_SESSION['sub_role'] ?? '';
 $V_barangay_id = (int)($_SESSION['barangay_id'] ?? 0);
 $V_barangay_name = $_SESSION['barangay_name'] ?? '';
+$V_session_muni = $_SESSION['municipality'] ?? '';
 
 // Municipality filter for admin roles (forces municipality for MDR sub-roles)
 $V_filter_muni = is_admin_role($V_role) ? get_effective_municipality($V_role, $V_sub_role) : null;
@@ -50,20 +51,21 @@ if ($V_filter_muni && is_admin_role($V_role)) {
 }
 
 $TotalQuery = mysqli_query($connection, "SELECT COUNT(*) AS total FROM incident_reports $V_dash_join WHERE $V_where");
-$TotalRow = mysqli_fetch_assoc($TotalQuery);
-$V_total_reports = $TotalRow['total'];
+$TotalRow = $TotalQuery ? mysqli_fetch_assoc($TotalQuery) : null;
+$V_total_reports = (int)($TotalRow['total'] ?? 0);
 
-$PendingQuery = mysqli_query($connection, "SELECT COUNT(*) AS total FROM incident_reports $V_dash_join WHERE $V_where AND incident_reports.status = 'Pending'");
-$PendingRow = mysqli_fetch_assoc($PendingQuery);
-$V_pending_reports = $PendingRow['total'];
+$V_pending_status = ($V_role == 'pcf') ? 'Forwarded to PCF' : 'Pending';
+$PendingQuery = mysqli_query($connection, "SELECT COUNT(*) AS total FROM incident_reports $V_dash_join WHERE $V_where AND incident_reports.status = '$V_pending_status'");
+$PendingRow = $PendingQuery ? mysqli_fetch_assoc($PendingQuery) : null;
+$V_pending_reports = (int)($PendingRow['total'] ?? 0);
 
 $ReviewQuery = mysqli_query($connection, "SELECT COUNT(*) AS total FROM incident_reports $V_dash_join WHERE $V_where AND incident_reports.status = 'Responding'");
-$ReviewRow = mysqli_fetch_assoc($ReviewQuery);
-$V_review_reports = $ReviewRow['total'];
+$ReviewRow = $ReviewQuery ? mysqli_fetch_assoc($ReviewQuery) : null;
+$V_review_reports = (int)($ReviewRow['total'] ?? 0);
 
 $HealthQuery = mysqli_query($connection, "SELECT COUNT(*) AS total FROM incident_reports $V_dash_join WHERE $V_where AND incident_reports.referred_to_pho = 1");
-$HealthRow = mysqli_fetch_assoc($HealthQuery);
-$V_health_reports = $HealthRow['total'];
+$HealthRow = $HealthQuery ? mysqli_fetch_assoc($HealthQuery) : null;
+$V_health_reports = (int)($HealthRow['total'] ?? 0);
 
 // Evac center count — admin: filtered by municipality; barangay: own barangay only
 if ($V_filter_muni && is_admin_role($V_role)) {
@@ -73,19 +75,33 @@ if ($V_filter_muni && is_admin_role($V_role)) {
            AND evacuation_centers.municipality = ?");
     mysqli_stmt_bind_param($CenterQuery, 's', $V_filter_muni);
     mysqli_stmt_execute($CenterQuery);
-    $CenterRow = mysqli_fetch_assoc(mysqli_stmt_get_result($CenterQuery));
+    $CenterResult = mysqli_stmt_get_result($CenterQuery);
+    $CenterRow = $CenterResult ? mysqli_fetch_assoc($CenterResult) : null;
 } elseif ($V_role == 'barangay') {
-    $CenterQuery = mysqli_prepare($connection,
-        "SELECT COUNT(*) AS total FROM evacuation_centers
-         WHERE evacuation_centers.status IN ('Available', 'Open')
-           AND evacuation_centers.barangay = ?
-           AND evacuation_centers.municipality = (SELECT municipality FROM barangays WHERE name = ? LIMIT 1)");
-    mysqli_stmt_bind_param($CenterQuery, 'ss', $V_barangay_name, $V_barangay_name);
+    // Resolve the barangay's municipality from the session (a barangay name alone
+    // is ambiguous: Kalibo and Ibajay both have a "Poblacion"). Falls back to the
+    // old name->municipality lookup when the session key is missing.
+    $CenterMuniSql = ($V_session_muni !== '')
+        ? "SELECT COUNT(*) AS total FROM evacuation_centers
+           WHERE evacuation_centers.status IN ('Available', 'Open')
+             AND evacuation_centers.barangay = ?
+             AND evacuation_centers.municipality = ?"
+        : "SELECT COUNT(*) AS total FROM evacuation_centers
+           WHERE evacuation_centers.status IN ('Available', 'Open')
+             AND evacuation_centers.barangay = ?
+             AND evacuation_centers.municipality = (SELECT municipality FROM barangays WHERE name = ? LIMIT 1)";
+    $CenterQuery = mysqli_prepare($connection, $CenterMuniSql);
+    if ($V_session_muni !== '') {
+        mysqli_stmt_bind_param($CenterQuery, 'ss', $V_barangay_name, $V_session_muni);
+    } else {
+        mysqli_stmt_bind_param($CenterQuery, 'ss', $V_barangay_name, $V_barangay_name);
+    }
     mysqli_stmt_execute($CenterQuery);
-    $CenterRow = mysqli_fetch_assoc(mysqli_stmt_get_result($CenterQuery));
+    $CenterResult = mysqli_stmt_get_result($CenterQuery);
+    $CenterRow = $CenterResult ? mysqli_fetch_assoc($CenterResult) : null;
 } else {
     $CenterResult = mysqli_query($connection, "SELECT COUNT(*) AS total FROM evacuation_centers WHERE status IN ('Available', 'Open')");
-    $CenterRow = mysqli_fetch_assoc($CenterResult);
+    $CenterRow = $CenterResult ? mysqli_fetch_assoc($CenterResult) : null;
 }
 $V_evac_centers = (int)($CenterRow['total'] ?? 0);
 
@@ -173,16 +189,17 @@ if ($V_role == 'barangay') {
     mysqli_stmt_bind_param($chart_stmt, "ii", $V_selected_month, $V_selected_year);
 }
 
-mysqli_stmt_execute($chart_stmt);
-$ChartResult = mysqli_stmt_get_result($chart_stmt);
 $V_max_chart_total = 0;
 
-while ($chart = mysqli_fetch_assoc($ChartResult)) {
-    $chart['total'] = (int)$chart['total'];
-    if ($chart['total'] > $V_max_chart_total) {
-        $V_max_chart_total = $chart['total'];
+if ($chart_stmt && mysqli_stmt_execute($chart_stmt)) {
+    $ChartResult = mysqli_stmt_get_result($chart_stmt);
+    while ($ChartResult && ($chart = mysqli_fetch_assoc($ChartResult))) {
+        $chart['total'] = (int)$chart['total'];
+        if ($chart['total'] > $V_max_chart_total) {
+            $V_max_chart_total = $chart['total'];
+        }
+        $V_chart_rows[] = $chart;
     }
-    $V_chart_rows[] = $chart;
 }
 
 // Build a fixed number scale for the chart so bar heights reflect the real
@@ -252,7 +269,10 @@ $ImpactResult = mysqli_query($connection, "SELECT
         COALESCE(SUM(dead), 0) AS dead,
         COALESCE(SUM(missing), 0) AS missing
     FROM incident_reports $V_month_join WHERE $V_month_where");
-$V_impact = mysqli_fetch_assoc($ImpactResult) ?: ['affected' => 0, 'injured' => 0, 'dead' => 0, 'missing' => 0];
+$V_impact = ['affected' => 0, 'injured' => 0, 'dead' => 0, 'missing' => 0];
+if ($ImpactResult) {
+    $V_impact = mysqli_fetch_assoc($ImpactResult) ?: $V_impact;
+}
 
 // Daily trend: reports per day, so spikes are easy to spot.
 $V_days_in_month = (int)date('t', mktime(0, 0, 0, $V_selected_month, 1, $V_selected_year));
@@ -304,9 +324,14 @@ if (!function_exists('report_number')) {
 // Secretary-specific: evacuation center status list.
 $V_evac_center_rows = [];
 if ($V_role == 'barangay' && $V_sub_role == 'secretary') {
-    $ECQuery = mysqli_prepare($connection, "SELECT center_name, status, capacity, barangay FROM evacuation_centers WHERE barangay = ? ORDER BY status ASC, center_name ASC");
+    $ECMuniFilter = ($V_session_muni !== '') ? " AND municipality = ?" : '';
+    $ECQuery = mysqli_prepare($connection, "SELECT center_name, status, capacity, barangay FROM evacuation_centers WHERE barangay = ?$ECMuniFilter ORDER BY status ASC, center_name ASC");
     if ($ECQuery) {
-        mysqli_stmt_bind_param($ECQuery, "s", $V_barangay_name);
+        if ($V_session_muni !== '') {
+            mysqli_stmt_bind_param($ECQuery, "ss", $V_barangay_name, $V_session_muni);
+        } else {
+            mysqli_stmt_bind_param($ECQuery, "s", $V_barangay_name);
+        }
         mysqli_stmt_execute($ECQuery);
         $ECResult = mysqli_stmt_get_result($ECQuery);
         while ($ec = mysqli_fetch_assoc($ECResult)) {
@@ -328,10 +353,32 @@ if ($V_role == 'barangay' && $V_sub_role == 'tanod') {
     }
 }
 
+// Secretary-specific: count of live alerts targeted at this barangay (same
+// "Active / not yet expired / targeted" rule the app uses for its unread badge).
+$V_active_alerts = 0;
+if ($V_role == 'barangay' && $V_sub_role == 'secretary') {
+    $AlertCountQuery = "SELECT COUNT(DISTINCT alerts.id) AS total
+                        FROM alerts
+                        WHERE alerts.status = 'Active'
+                          AND (alerts.end_datetime IS NULL OR alerts.end_datetime >= NOW())
+                          AND (LOWER(COALESCE(alerts.target_type, 'all')) = 'all'
+                               OR EXISTS (SELECT 1 FROM alert_barangays ab WHERE ab.alert_id = alerts.id AND ab.barangay_id = ?))";
+    $AlertCountStmt = mysqli_prepare($connection, $AlertCountQuery);
+    if ($AlertCountStmt) {
+        mysqli_stmt_bind_param($AlertCountStmt, "i", $V_barangay_id);
+        mysqli_stmt_execute($AlertCountStmt);
+        $AlertCountResult = mysqli_stmt_get_result($AlertCountStmt);
+        $AlertCountRow = $AlertCountResult ? mysqli_fetch_assoc($AlertCountResult) : null;
+        $V_active_alerts = (int)($AlertCountRow['total'] ?? 0);
+        mysqli_stmt_free_result($AlertCountStmt);
+    }
+}
+
 // --- Needs & Assistance panel (PCF / PHO / Superadmin) -----------------------
 // Shows "what the centers still need", what is still just pledged (incoming),
 // and a heads-up on centers that got no pledges yet. Fulfillment rule: only
-// Sent/Delivered supply counts toward a need; Pledged is "incoming".
+// barangay-confirmed delivery (received_at set) counts toward a need; Pledged,
+// Sent and Delivered do NOT reduce the unmet quantity. Mirrors the API summary.
 $V_unmet_total = 0;
 $V_incoming_total = 0;
 $V_my_pledges = 0;
@@ -345,11 +392,11 @@ if (can_view_assistance($V_role)) {
         $V_assist_muni_bind = "s";
     }
 
-    $UnmetSql = "SELECT COALESCE(SUM(GREATEST(n.qty_needed - COALESCE(s.sent_qty, 0), 0)), 0) AS unmet
+    $UnmetSql = "SELECT COALESCE(SUM(GREATEST(n.qty_needed - COALESCE(r.received_qty, 0), 0)), 0) AS unmet
                  FROM evac_center_needs n
                  INNER JOIN evacuation_centers ec ON ec.id = n.evac_center_id
-                 LEFT JOIN (SELECT need_id, SUM(qty) AS sent_qty FROM evac_assistance
-                            WHERE status IN ('Sent','Delivered') GROUP BY need_id) s ON s.need_id = n.id
+                 LEFT JOIN (SELECT need_id, SUM(COALESCE(qty_received, qty)) AS received_qty FROM evac_assistance
+                            WHERE received_at IS NOT NULL GROUP BY need_id) r ON r.need_id = n.id
                  WHERE ec.status IN ('Open','Full','Needs Supplies','Available')$V_assist_muni_where";
     $UnmetStmt = mysqli_prepare($connection, $UnmetSql);
     $V_unmet_total = 0;
@@ -897,9 +944,9 @@ if (can_view_assistance($V_role)) {
         <div class="stat-label">Pending</div>
         <div class="stat-number"><?php echo $V_pending_reports; ?></div>
     </div>
-    <div class="stat-box danger">
-        <div class="stat-label"><?php echo ($V_role == 'pho') ? 'Provincial Cases' : 'Provincial'; ?></div>
-        <div class="stat-number"><?php echo $V_health_reports; ?></div>
+<div class="stat-box danger">
+        <div class="stat-label">Active Alerts</div>
+        <div class="stat-number"><?php echo $V_active_alerts; ?></div>
     </div>
     <div class="stat-box success">
         <div class="stat-label"><?php echo ($V_role == 'pcf') ? 'Responding' : 'Evac Centers'; ?></div>

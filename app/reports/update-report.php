@@ -258,7 +258,7 @@ try {
 
     $LogQuery = "INSERT INTO incident_status_logs
                  (incident_report_id, old_status, new_status, remarks, updated_by)
-                 VALUES (?, 'Pending', 'Pending', 'Report edited by barangay.', ?)";
+                 VALUES (?, NULL, 'Pending', 'Report edited by barangay.', ?)";
     $log_stmt = mysqli_prepare($connection, $LogQuery);
     mysqli_stmt_bind_param($log_stmt, "ii", $V_report_id, $V_user_id);
     mysqli_stmt_execute($log_stmt);

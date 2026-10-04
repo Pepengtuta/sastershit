@@ -59,6 +59,15 @@ $V_alert_result = mysqli_query($connection, $V_alert_query);
         <div class="alert alert-success mx-3 mt-3 py-2">Alert deleted successfully.</div>
     <?php } ?>
 
+    <div class="filter-bar">
+        <select id="alertValidityFilter" class="form-select" aria-label="Lifecycle filter">
+            <option value="">All lifecycles</option>
+            <option value="Active">Active</option>
+            <option value="Upcoming">Upcoming</option>
+            <option value="Expired">Expired</option>
+        </select>
+    </div>
+
     <div class="table-wrap">
         <table class="table table-bordered table-hover custom-table">
             <thead>
@@ -75,8 +84,16 @@ $V_alert_result = mysqli_query($connection, $V_alert_query);
 
             <tbody>
                 <?php if ($V_alert_result && mysqli_num_rows($V_alert_result) > 0) { ?>
-                    <?php while ($alert = mysqli_fetch_assoc($V_alert_result)) { ?>
-                        <tr>
+                    <?php $V_now = time();
+                    while ($alert = mysqli_fetch_assoc($V_alert_result)) {
+                        $V_start_ts = !empty($alert['start_datetime']) ? strtotime($alert['start_datetime']) : null;
+                        $V_end_ts = !empty($alert['end_datetime']) ? strtotime($alert['end_datetime']) : null;
+                        $V_validity = 'Active';
+                        if ($V_start_ts !== null && $V_start_ts > $V_now) $V_validity = 'Upcoming';
+                        if ($V_end_ts !== null && $V_end_ts < $V_now) $V_validity = 'Expired';
+                        $V_validity_class = ($V_validity == 'Active') ? 'badge-soft-success' : (($V_validity == 'Upcoming') ? 'badge-soft-info' : 'badge-soft-secondary');
+                    ?>
+                        <tr class="alert-row" data-validity="<?php echo $V_validity; ?>">
                             <td class="alert-message-cell">
                                 <strong><?php echo h($alert['title']); ?></strong><br>
                                 <small><?php echo h($alert['message']); ?></small>
@@ -103,7 +120,10 @@ $V_alert_result = mysqli_query($connection, $V_alert_query);
                                 <?php } ?>
                             </td>
 
-                            <td><?php echo h($alert['status']); ?></td>
+                            <td>
+                                <?php echo h($alert['status']); ?>
+                                <br><span class="soft-badge <?php echo $V_validity_class; ?>"><?php echo $V_validity; ?></span>
+                            </td>
                             <td><?php echo h($alert['created_by_name']); ?></td>
                             <td class="alert-date-cell"><?php echo date('M d, Y h:i A', strtotime($alert['created_at'])); ?></td>
                         </tr>
@@ -117,5 +137,17 @@ $V_alert_result = mysqli_query($connection, $V_alert_query);
         </table>
     </div>
 </div>
+
+<script>
+document.getElementById('alertValidityFilter').addEventListener('change', function () {
+    var v = this.value.toLowerCase();
+    var visible = 0;
+    document.querySelectorAll('.alert-row').forEach(function (row) {
+        var show = (!v || row.dataset.validity.toLowerCase() === v);
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+});
+</script>
 
 <?php include "../app/includes/footer.php"; ?>

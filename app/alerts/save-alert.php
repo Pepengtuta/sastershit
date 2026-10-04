@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] != 'pcf' && $_SESSION['ro
 }
 
 // Mayor observers cannot publish alerts.
-require_once dirname(__DIR__, 2) . "/includes/functions.php";
+require_once __DIR__ . "/../includes/functions.php";
 if (is_readonly_role($_SESSION['role'] ?? '', $_SESSION['sub_role'] ?? '')) {
     header("Location: ../../public/dashboard.php");
     exit;

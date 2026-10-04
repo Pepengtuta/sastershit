@@ -88,9 +88,8 @@ if (!empty($V_report['incident_datetime'])) {
         $V_minute_val = date('i', $V_ts);
     }
 }
-$V_minute_round = (int)(round((int)$V_minute_val / 5) * 5);
-if ($V_minute_round >= 60) { $V_minute_round = 55; }
-$V_minute_sel = str_pad((string)$V_minute_round, 2, '0', STR_PAD_LEFT);
+$V_minute_sel = $V_minute_val;
+$V_minute_is_step = ((int)$V_minute_sel % 5 === 0);
 
 // Assistance list -> array for checkbox prefill.
 $V_assistance_selected = [];
@@ -207,8 +206,9 @@ $V_road_causes_list = ['Fallen Tree', 'Downed Power Line / Electric Post', 'Floo
                 <div class="form-text">If you know more than one cause, tick them all (e.g., a fallen tree and a downed power line together).</div>
             </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Incident Date and Time</label>
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                        <label class="form-label">Incident Date and Time</label>
                     <div class="row g-2">
                         <div class="col-md-5 col-12">
                             <input type="date" name="incident_date" id="incidentDate" class="form-control" value="<?php echo h($V_date_val); ?>" required>
@@ -228,6 +228,9 @@ $V_road_causes_list = ['Fallen Tree', 'Downed Power Line / Electric Post', 'Floo
                                     <option value="<?php echo $V_mm; ?>" <?php echo ($V_mm === $V_minute_sel) ? 'selected' : ''; ?>>
                                         <?php echo $V_mm; ?>
                                     </option>
+                                <?php } ?>
+                                <?php if (!$V_minute_is_step) { ?>
+                                    <option value="<?php echo h($V_minute_sel); ?>" selected><?php echo h($V_minute_sel); ?></option>
                                 <?php } ?>
                             </select>
                         </div>

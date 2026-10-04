@@ -309,8 +309,11 @@ try {
     mysqli_commit($connection);
 
     if (!empty($V_upload_errors)) {
+        // The report itself is committed at this point; do NOT bounce back to a
+        // blank create form (that invites a duplicate submit). Land on the list
+        // with a "created" banner plus the skipped-file warnings.
         $_SESSION['upload_errors'] = $V_upload_errors;
-        header("Location: ../../public/create-incident-report.php?upload_warn=1");
+        header("Location: ../../public/incident-reports.php?created=1&upload_warn=1");
     } else {
         header("Location: ../../public/incident-reports.php?created=1");
     }

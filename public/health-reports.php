@@ -40,7 +40,15 @@ if ($V_health_stmt) {
 }
 
 $V_statuses = ['Pending', 'Verified', 'Responding', 'Under PHO Review', 'Referred to PHO', 'Resolved', 'Dismissed'];
-$V_types    = ['Flood', 'Fire', 'Earthquake', 'Accident / Mass Casualty Incident', 'Medical', 'Other'];
+// Disaster types from DB — always in sync with active types (Typhoon, Storm
+// Surge, Disease Outbreak, etc.), matching the incident-reports filter.
+$V_types    = [];
+$V_types_result = mysqli_query($connection, "SELECT name FROM disaster_types WHERE status = 'Active' ORDER BY id ASC");
+if ($V_types_result) {
+    while ($V_trow = mysqli_fetch_assoc($V_types_result)) {
+        $V_types[] = $V_trow['name'];
+    }
+}
 $V_modal_html = '';
 
 // Governor-only province-wide evidence card (read-only decision support).
@@ -354,6 +362,9 @@ if (!function_exists('report_number')) {
                         <td colspan="10" class="empty-state">No Provincial reports found.</td>
                     </tr>
                 <?php } ?>
+                <tr id="healthNoMatch" style="display:none;">
+                    <td colspan="10" class="empty-state">No matching Provincial reports.</td>
+                </tr>
             </tbody>
         </table>
     </div>

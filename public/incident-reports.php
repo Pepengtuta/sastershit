@@ -3,7 +3,7 @@ $V_page_title = "Incident Reports";
 include "../app/auth/check_session.php";
 include "../config/db_connection.php";
 
-$V_role = $_SESSION['role'];
+$V_role = $_SESSION['role'] ?? '';
 $V_sub_role = $_SESSION['sub_role'] ?? '';
 $V_barangay_id = (int)($_SESSION['barangay_id'] ?? 0);
 
@@ -72,7 +72,7 @@ $ReportResult = mysqli_stmt_get_result($ReportStmt);
 $V_statuses = ['Pending', 'Reviewed', 'Forwarded to PCF', 'Verified', 'Responding', 'Referred to PHO', 'Resolved', 'Dismissed'];
 // Municipal acts on the intermediate MDR/PHO stages, so only they see them as filters.
 if (can_manage_status($V_role)) {
-    $V_statuses = ['Pending', 'Reviewed', 'Forwarded to PCF', 'Under MDR Review', 'Verified', 'Responding', 'Under PHO Review', 'Referred to PHO', 'Resolved', 'Dismissed'];
+    $V_statuses = ['Forwarded to PCF', 'Under MDR Review', 'Verified', 'Responding', 'Under PHO Review', 'Referred to PHO', 'Resolved', 'Dismissed'];
 }
 
 // Disaster types from DB — always in sync with active types.
@@ -289,6 +289,15 @@ if ($V_mayor_muni !== null) {
         <div class="alert alert-success mx-3 mt-3 py-2">Incident report created.</div>
     <?php } ?>
 
+    <?php if (isset($_GET['upload_warn']) && !empty($_SESSION['upload_errors'] ?? null)) { ?>
+        <div class="alert alert-warning mx-3 mt-3 py-2">
+            <strong>Report saved, but some attachments were skipped.</strong><br>
+            <?php foreach ($_SESSION['upload_errors'] as $err) { echo htmlspecialchars($err) . '<br>'; } ?>
+            You can reopen the report and add the files from its edit screen.
+            <?php unset($_SESSION['upload_errors']); ?>
+        </div>
+    <?php } ?>
+
     <?php if (isset($_GET['updated'])) { ?>
         <div class="alert alert-success mx-3 mt-3 py-2">Status updated.</div>
     <?php } ?>
@@ -502,11 +511,11 @@ if ($V_mayor_muni !== null) {
                     <?php } ?>
                 <?php } else { ?>
                     <tr>
-                        <td colspan="11" class="empty-state">No incident reports found.</td>
+                        <td colspan="12" class="empty-state">No incident reports found.</td>
                     </tr>
                 <?php } ?>
                 <tr id="noReportMatchRow" style="display:none;">
-                    <td colspan="11" class="empty-state">No matching incident reports.</td>
+                    <td colspan="12" class="empty-state">No matching incident reports.</td>
                 </tr>
             </tbody>
         </table>
