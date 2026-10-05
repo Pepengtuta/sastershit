@@ -17,15 +17,15 @@ class ApiConfig {
   // static const String baseUrl = 'https://cloud-prognosis-boogeyman.ngrok-free.dev/vsp/sastergpt/api';
   // static const String fileBaseUrl = 'https://cloud-prognosis-boogeyman.ngrok-free.dev/vsp/sastergpt';
 
-    //current cloudflare service
+    //current railway service
   static const String baseUrl =
-      'https://miami-approximate-donald-discovered.trycloudflare.com/vsp/sastergpt/api';
+      'ugyon-production.up.railway.app/vsp/sastergpt/api';
   static const String fileBaseUrl =
-      'https://miami-approximate-donald-discovered.trycloudflare.com/vsp/sastergpt';
+      'ugyon-production.up.railway.app/vsp/sastergpt';
 
   // Flip to false for plain localhost/LAN browser testing (no ngrok in the loop).
   // Flip back to true when going through an ngrok URL.
-  static const bool useNgrokHeader = true;
+  static const bool useNgrokHeader = false;
  static Map<String, String> get ngrokHeaders =>
       useNgrokHeader ? const {'ngrok-skip-browser-warning': 'true'} : const {};
  }
