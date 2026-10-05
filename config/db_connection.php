@@ -2,7 +2,7 @@
 // Loads the single DEBUG_MODE switch + error settings + fail_message().
 require_once __DIR__ . "/app_config.php";
 
-$connection = mysqli_connect("localhost", "root", "", "capstone");
+$connection = mysqli_connect("mysql.railway.internal", "root", "yRCViFQMEVSaedxudoxpJuUEHdikEDuz", "railway");
 
 if (!$connection) {
     http_response_code(500);
