@@ -521,18 +521,18 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
       return {'mp4', 'mov', 'avi', 'mkv', 'webm'}.contains(ext);
     }).length;
 
-    if (video && videoCount >= 2) {
+    if (video && videoCount >= 1) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Maximum 2 videos per report.'), backgroundColor: AppColors.primaryRed),
+          const SnackBar(content: Text('Maximum 1 video per report.'), backgroundColor: AppColors.primaryRed),
         );
       }
       return;
     }
-    if (!video && photoCount >= 5) {
+    if (!video && photoCount >= 1) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Maximum 5 photos per report.'), backgroundColor: AppColors.primaryRed),
+          const SnackBar(content: Text('Maximum 1 photo per report.'), backgroundColor: AppColors.primaryRed),
         );
       }
       return;
@@ -552,10 +552,10 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
       }
       return;
     }
-    if (!video && length > 15 * 1024 * 1024) {
+    if (!video && length > 10 * 1024 * 1024) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Photo exceeds 15 MB limit.'), backgroundColor: AppColors.primaryRed),
+          const SnackBar(content: Text('Photo exceeds 10 MB limit.'), backgroundColor: AppColors.primaryRed),
         );
       }
       return;

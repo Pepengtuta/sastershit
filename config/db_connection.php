@@ -1,8 +1,17 @@
 <?php
 // Loads the single DEBUG_MODE switch + error settings + fail_message().
 require_once __DIR__ . "/app_config.php";
+require_once __DIR__ . "/env.php";
 
-$connection = mysqli_connect("localhost", "root", "", "capstone");
+env_load(dirname(__DIR__));
+
+$db_host = env('DB_HOST', 'localhost');
+$db_user = env('DB_USER', 'root');
+$db_pass = env('DB_PASS', '');
+$db_name = env('DB_NAME', 'capstone');
+$db_port = (int) env('DB_PORT', 3306);
+
+$connection = mysqli_connect($db_host, $db_user, $db_pass, $db_name, $db_port);
 
 if (!$connection) {
     http_response_code(500);

@@ -4,6 +4,7 @@ require_once __DIR__ . "/../includes/csrf.php";
 csrf_verify();
 include "../../config/db_connection.php";
 require_once __DIR__ . "/../includes/functions.php";
+require_once __DIR__ . "/../../config/cloudinary.php";
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'barangay') {
     header("Location: ../../public/login.php");
@@ -276,13 +277,6 @@ try {
         $V_max_video = UPLOAD_MAX_VIDEO_MB * 1024 * 1024;
         $V_max_count = ($V_file_type == 'photo') ? UPLOAD_MAX_PHOTOS : UPLOAD_MAX_VIDEOS;
 
-        $V_folder = __DIR__ . "/../../public/uploads/incidents/report_" . $V_incident_id . "/";
-        $V_db_folder = "uploads/incidents/report_" . $V_incident_id . "/";
-
-        if (!is_dir($V_folder)) {
-            mkdir($V_folder, 0755, true);
-        }
-
         $V_total_files = count($_FILES[$V_input_name]['name']);
         $V_saved = 0;
 
@@ -328,10 +322,9 @@ try {
 
             $V_clean_name = preg_replace('/[^A-Za-z0-9_\.-]/', '_', pathinfo($V_original_name, PATHINFO_FILENAME));
             $V_new_name = $V_file_type . '_' . date('YmdHis') . '_' . $i . '_' . $V_clean_name . '.' . $V_extension;
-            $V_target_path = $V_folder . $V_new_name;
-            $V_db_path = $V_db_folder . $V_new_name;
+            $V_db_path = cloudinary_upload($V_tmp_name, 'incidents/report_' . $V_incident_id, $V_new_name);
 
-            if (move_uploaded_file($V_tmp_name, $V_target_path)) {
+            if ($V_db_path !== '') {
                 $AttachmentQuery = "INSERT INTO incident_attachments
                                     (incident_report_id, uploaded_by, file_name, file_path, file_type, file_size)
                                     VALUES (?, ?, ?, ?, ?, ?)";

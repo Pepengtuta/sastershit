@@ -128,10 +128,10 @@ class IncidentService {
       const allowedImageExtensions = {'jpg', 'jpeg', 'png', 'gif', 'webp'};
       const allowedVideoExtensions = {'mp4', 'mov', 'avi', 'mkv', 'webm'};
       // Match config/app_config.php — change both together
-      const maxPhotoBytes = 15 * 1024 * 1024;
+      const maxPhotoBytes = 10 * 1024 * 1024;
       const maxVideoBytes = 50 * 1024 * 1024;
-      const maxPhotos = 5;
-      const maxVideos = 2;
+      const maxPhotos = 1;
+      const maxVideos = 1;
 
       int photoCount = 0;
       int videoCount = 0;
@@ -163,7 +163,7 @@ class IncidentService {
           if (length > maxPhotoBytes) {
             return {
               'success': false,
-              'message': 'File "$name" is larger than the 15 MB photo limit.',
+              'message': 'File "$name" is larger than the 10 MB photo limit.',
               'data': null,
             };
           }

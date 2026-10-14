@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once "../config/db_connection.php";
+require_once __DIR__ . '/../config/cloudinary.php';
 
 function send_response($success, $message, $data = []) {
     echo json_encode(["success" => $success, "message" => $message, "data" => $data]);
@@ -123,14 +124,6 @@ $has_file_size = column_exists($connection, 'incident_attachments', 'file_size')
 $has_created_at = column_exists($connection, 'incident_attachments', 'created_at');
 $has_uploaded_at = column_exists($connection, 'incident_attachments', 'uploaded_at');
 
-$base_dir = "../public/uploads/incidents/report_" . $incident_report_id;
-if (!is_dir($base_dir)) {
-    // FIX: 0755 instead of world-writable 0777.
-    if (!mkdir($base_dir, 0755, true) && !is_dir($base_dir)) {
-        send_response(false, "Failed to create upload folder.");
-    }
-}
-
 $finfo = function_exists('finfo_open') ? finfo_open(FILEINFO_MIME_TYPE) : false;
 
 $uploaded = [];
@@ -160,19 +153,19 @@ for ($i = 0; $i < $count; $i++) {
     if ($type === 'photo') {
         $max_bytes = $max_photo_bytes;
         if ($photo_count >= $max_photo_count) {
-            $rejected[] = ["file_name" => $original, "reason" => "Maximum 5 photos per report."];
+            $rejected[] = ["file_name" => $original, "reason" => "Maximum " . $max_photo_count . " photos per report."];
             continue;
         }
     } else {
         $max_bytes = $max_video_bytes;
         if ($video_count >= $max_video_count) {
-            $rejected[] = ["file_name" => $original, "reason" => "Maximum 2 videos per report."];
+            $rejected[] = ["file_name" => $original, "reason" => "Maximum " . $max_video_count . " videos per report."];
             continue;
         }
     }
 
     if ($size <= 0 || $size > $max_bytes) {
-        $rejected[] = ["file_name" => $original, "reason" => "File is too large (max " . ($type === 'photo' ? '15 MB' : '50 MB') . ")."];
+        $rejected[] = ["file_name" => $original, "reason" => "File is too large (max " . ($type === 'photo' ? UPLOAD_MAX_PHOTO_MB : UPLOAD_MAX_VIDEO_MB) . " MB)."];
         continue;
     }
 
@@ -189,11 +182,10 @@ for ($i = 0; $i < $count; $i++) {
 
     // FIX: unpredictable filename (avoids guessable URLs and overwrites).
     $filename = $type . '_' . date('YmdHis') . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
-    $target = $base_dir . '/' . $filename;
 
-    if (move_uploaded_file($files['tmp_name'][$i], $target)) {
-        @chmod($target, 0644);
-        $db_path = 'uploads/incidents/report_' . $incident_report_id . '/' . $filename;
+    $db_path = cloudinary_upload($files['tmp_name'][$i], 'incidents/report_' . $incident_report_id, $filename);
+
+    if ($db_path !== '') {
 
         $columns = ["`$attachment_incident_column`", "`file_path`"];
         $placeholders = ["?", "?"];

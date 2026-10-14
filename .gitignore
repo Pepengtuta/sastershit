@@ -1,0 +1,17 @@
+# --- opencode / Graphify MCP ---
+# Bearer token for the Graphify remote MCP server (never commit)
+.opencode/graphify.token
+
+# Graphify generated artifacts
+graphify-out/
+.graphify_labels.json
+
+# --- Local secrets ---
+# Cloudinary credentials for local dev (Railway uses env vars)
+config/cloudinary.local.php
+
+# Local environment file (Railway injects real values)
+.env
+
+# Composer dependencies (installed at deploy time)
+/vendor/

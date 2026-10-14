@@ -15,10 +15,10 @@ const DEBUG_MODE = false;
 //  Change these when deploying to a host with different PHP limits.
 //  InfinityFree free tier = 10 MB max. XAMPP local = 40-50 MB.
 // ============================================================
-const UPLOAD_MAX_PHOTO_MB = 15;
+const UPLOAD_MAX_PHOTO_MB = 10;
 const UPLOAD_MAX_VIDEO_MB = 50;
-const UPLOAD_MAX_PHOTOS   = 5;
-const UPLOAD_MAX_VIDEOS   = 2;
+const UPLOAD_MAX_PHOTOS   = 1;
+const UPLOAD_MAX_VIDEOS   = 1;
 
 // --- Do not edit below this line ----------------------------------
 
