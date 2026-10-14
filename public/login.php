@@ -291,7 +291,7 @@ $V_error = $_GET['error'] ?? '';
             <button type="submit" class="btn-login" id="loginBtn">Login</button>
         </form>
 
-        <p class="login-footer">Demo Only</p>
+        <p class="login-footer">Railway</p>
     </div>
 
     <script>
