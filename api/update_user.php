@@ -27,6 +27,9 @@ $sub_role = trim($input['sub_role'] ?? '');
 if ($id <= 0 || $name === '' || $username === '') {
     send_response(false, "Please fill in all required fields.");
 }
+if (!valid_username($username)) {
+    send_response(false, username_rule_message());
+}
 
 // ── Fetch target user ──
 $tstmt = mysqli_prepare($connection, "SELECT id, username, role, sub_role, barangay_id, status FROM users WHERE id = ? LIMIT 1");

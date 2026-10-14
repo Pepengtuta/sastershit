@@ -3,6 +3,16 @@ function h($V_value) {
     return htmlspecialchars((string)$V_value, ENT_QUOTES, 'UTF-8');
 }
 
+// Usernames must be readable and unambiguous: letters, numbers, dot,
+// underscore, and hyphen only (3-50 chars, no spaces or other symbols).
+function valid_username($V_username) {
+    return (bool)preg_match('/^[A-Za-z0-9._-]{3,50}$/', (string)$V_username);
+}
+
+function username_rule_message() {
+    return 'Username may only contain letters, numbers, dots, underscores, and hyphens (3-50 characters, no spaces).';
+}
+
 function role_name($V_role, $V_sub_role = '') {
     if ($V_role == 'superadmin') {
         return 'Super Admin';

@@ -1,6 +1,20 @@
 <?php
 // Shared helpers for the mobile user-management endpoints.
 
+// Usernames must be readable and unambiguous: letters, numbers, dot,
+// underscore, and hyphen only (3-50 chars, no spaces or other symbols).
+// Mirrors valid_username() in app/includes/functions.php.
+if (!function_exists('valid_username')) {
+    function valid_username($username) {
+        return (bool)preg_match('/^[A-Za-z0-9._-]{3,50}$/', (string)$username);
+    }
+}
+if (!function_exists('username_rule_message')) {
+    function username_rule_message() {
+        return 'Username may only contain letters, numbers, dots, underscores, and hyphens (3-50 characters, no spaces).';
+    }
+}
+
 // Read-only observer sub-roles: town mayors (PCF) and the Aklan Governor (PHO).
 if (!function_exists('is_readonly_role_api')) {
     function is_readonly_role_api($role, $sub_role = '') {

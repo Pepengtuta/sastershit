@@ -5,6 +5,7 @@ import '../../constants/app_colors.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/offline_sync_coordinator.dart';
+import '../../utils/validators.dart';
 import '../../widgets/offline_data_status.dart';
 import '../../widgets/server_required_notice.dart';
 import '../login_screen.dart';
@@ -502,6 +503,13 @@ class _MdrManageUsersScreenState extends State<_MdrManageUsersScreen> {
             FilledButton(
               onPressed: () async {
                 if (nameCtrl.text.isEmpty || userCtrl.text.isEmpty || passCtrl.text.isEmpty) return;
+                final usernameError = Validators.username(userCtrl.text);
+                if (usernameError != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(usernameError), backgroundColor: Colors.red),
+                  );
+                  return;
+                }
                 Navigator.pop(ctx);
                 final res = await _MdrUserServiceHelper.createUser(
                   name: nameCtrl.text.trim(),
@@ -566,6 +574,13 @@ class _MdrManageUsersScreenState extends State<_MdrManageUsersScreen> {
             TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
             FilledButton(
               onPressed: () async {
+                final usernameError = Validators.username(userCtrl.text);
+                if (usernameError != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(usernameError), backgroundColor: Colors.red),
+                  );
+                  return;
+                }
                 Navigator.pop(ctx);
                 final res = await _MdrUserServiceHelper.updateUser(
                   userId: user['id'],

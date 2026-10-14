@@ -32,6 +32,9 @@ if ($name === '' || $username === '' || $password === '') {
 if (strlen($password) < 6) {
     send_response(false, "Password must be at least 6 characters.");
 }
+if (!valid_username($username)) {
+    send_response(false, username_rule_message());
+}
 
 // ── 3. Pre-initialize bind variables (required for bind_param by-reference) ──
 $role         = 'barangay';

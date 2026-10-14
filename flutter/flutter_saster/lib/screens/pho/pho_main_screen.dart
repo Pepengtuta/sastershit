@@ -5,6 +5,7 @@ import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/offline_sync_coordinator.dart';
 import '../../services/user_service.dart';
+import '../../utils/validators.dart';
 import '../../widgets/offline_data_status.dart';
 import '../../widgets/server_required_notice.dart';
 import '../login_screen.dart';
@@ -546,6 +547,13 @@ class _PhoManageUsersScreenState extends State<_PhoManageUsersScreen> {
               if (nameCtrl.text.isEmpty || userCtrl.text.isEmpty || passCtrl.text.isEmpty) {
                 return;
               }
+              final usernameError = Validators.username(userCtrl.text);
+              if (usernameError != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(usernameError), backgroundColor: Colors.red),
+                );
+                return;
+              }
               Navigator.pop(ctx);
               final res = await UserService.createUser(
                 name: nameCtrl.text.trim(),
@@ -587,6 +595,13 @@ class _PhoManageUsersScreenState extends State<_PhoManageUsersScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           FilledButton(
             onPressed: () async {
+              final usernameError = Validators.username(userCtrl.text);
+              if (usernameError != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(usernameError), backgroundColor: Colors.red),
+                );
+                return;
+              }
               Navigator.pop(ctx);
               final res = await UserService.updateUser(
                 userId: int.parse(user['id'].toString()),

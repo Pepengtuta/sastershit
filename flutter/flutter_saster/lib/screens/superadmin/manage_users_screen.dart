@@ -6,6 +6,7 @@ import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/barangay_service.dart';
 import '../../services/user_service.dart';
+import '../../utils/validators.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/error_state.dart';
 import '../../widgets/info_card.dart';
@@ -162,7 +163,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                       TextFormField(
                         controller: usernameController,
                         decoration: const InputDecoration(labelText: 'Username'),
-                        validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                        validator: Validators.username,
                       ),
                       TextFormField(
                         controller: passwordController,

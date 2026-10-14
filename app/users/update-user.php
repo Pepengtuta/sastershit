@@ -38,6 +38,9 @@ $V_is_pho = ($V_role === 'pho' && ($V_sub_role === '' || $V_sub_role === null));
 if ($V_id <= 0 || $V_name === '' || $V_username === '') {
     redirect_users('err', 'Please fill in all required fields.');
 }
+if (!valid_username($V_username)) {
+    redirect_users('err', username_rule_message());
+}
 
 $tstmt = mysqli_prepare($connection, "SELECT id, username, role, sub_role, barangay_id, status FROM users WHERE id = ? LIMIT 1");
 mysqli_stmt_bind_param($tstmt, "i", $V_id);

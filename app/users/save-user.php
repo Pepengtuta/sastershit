@@ -41,6 +41,9 @@ if ($V_name === '' || $V_username === '' || $V_password === '') {
 if (strlen($V_password) < 6) {
     redirect_users('err', 'Password must be at least 6 characters.');
 }
+if (!valid_username($V_username)) {
+    redirect_users('err', username_rule_message());
+}
 
 if ($V_is_superadmin) {
     // Superadmin can create any role.
