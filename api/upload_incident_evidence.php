@@ -183,7 +183,7 @@ for ($i = 0; $i < $count; $i++) {
     // FIX: unpredictable filename (avoids guessable URLs and overwrites).
     $filename = $type . '_' . date('YmdHis') . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
 
-    $db_path = cloudinary_upload($files['tmp_name'][$i], 'incidents/report_' . $incident_report_id, $filename);
+    $db_path = cloudinary_upload($files['tmp_name'][$i], 'Ugyon/upload_incident_evidence/report_' . $incident_report_id, $filename);
 
     if ($db_path !== '') {
 

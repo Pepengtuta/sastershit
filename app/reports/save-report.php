@@ -279,7 +279,7 @@ try {
 
             $V_clean_name = preg_replace('/[^A-Za-z0-9_\.-]/', '_', pathinfo($V_original_name, PATHINFO_FILENAME));
             $V_new_name = $V_file_type . '_' . date('YmdHis') . '_' . $i . '_' . $V_clean_name . '.' . $V_extension;
-            $V_db_path = cloudinary_upload($V_tmp_name, 'incidents/report_' . $V_incident_id, $V_new_name);
+            $V_db_path = cloudinary_upload($V_tmp_name, 'Ugyon/upload_incident_evidence/report_' . $V_incident_id, $V_new_name);
 
             if ($V_db_path !== '') {
                 $AttachmentQuery = "INSERT INTO incident_attachments
