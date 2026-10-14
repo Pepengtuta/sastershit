@@ -35,8 +35,9 @@ function cloudinary_upload($tmp_path, $relative_folder, $filename) {
     $secret = $p['pass'] ?? '';
     if (!$cloud || !$key || !$secret) return '';
 
-    // public_id keeps folder + filename -> Flutter's basename dedup still matches.
-    $public_id = $relative_folder . '/' . $filename;
+    // public_id omits the extension: Cloudinary derives the format and appends
+    // it, so the stored URL stays clean (name.jpg, not name.jpg.jpg).
+    $public_id = $relative_folder . '/' . pathinfo($filename, PATHINFO_FILENAME);
     $timestamp = time();
     $signature = sha1('public_id=' . $public_id . '&timestamp=' . $timestamp . $secret);
 
