@@ -48,6 +48,12 @@ class _AssistanceBoardScreenState extends State<AssistanceBoardScreen>
   bool _unmetOnly = false;
 
   @override
+  void initState() {
+    super.initState(); // wires HotlineReconnectMixin listeners first
+    loadBoard();
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -81,7 +87,7 @@ class _AssistanceBoardScreenState extends State<AssistanceBoardScreen>
 
   Future<void> loadBoard() async {
     if (_loadInProgress) return;
-    _loadInProgress = true;
+    _loadInProgress = true; // set before try so finally always clears it
 
     setState(() {
       isLoading = true;
@@ -89,64 +95,74 @@ class _AssistanceBoardScreenState extends State<AssistanceBoardScreen>
       showingSaved = false;
     });
 
-    final userId = AuthService.currentUserId ?? 0;
-    final role = AuthService.currentRole ?? '';
-    final municipality = AuthService.effectiveMunicipality;
+    try {
+      final userId = AuthService.currentUserId ?? 0;
+      final role = AuthService.currentRole ?? '';
+      final municipality = AuthService.effectiveMunicipality;
 
-    final cached = await AssistanceRepository.instance.getCachedBoard(
-      userId: userId,
-      role: role,
-      municipality: municipality,
-    );
+      final cached = await AssistanceRepository.instance
+          .getCachedBoard(
+            userId: userId,
+            role: role,
+            municipality: municipality,
+          )
+          .timeout(const Duration(seconds: 8));
 
-    if (!mounted) {
-      _loadInProgress = false;
-      return;
-    }
+      if (!mounted) return;
 
-    if (cached.hasCache) {
-      setState(() {
-        data = cached.data;
-        lastUpdated = cached.lastUpdated;
-        isLoading = false;
-      });
-    }
+      if (cached.hasCache) {
+        setState(() {
+          data = cached.data;
+          lastUpdated = cached.lastUpdated;
+          isLoading = false;
+        });
+      }
 
-    if (!await _isNetworkAvailable()) {
-      if (!mounted) {
-        _loadInProgress = false;
+      if (!await _isNetworkAvailable()) {
+        if (!mounted) return;
+        _applyBoardFailure(cached);
         return;
       }
-      _applyBoardFailure(cached);
+
+      final refreshed = await AssistanceRepository.instance.refreshBoard(
+        userId: userId,
+        role: role,
+        municipality: municipality,
+      );
+
+      if (!mounted) return;
+
+      if (refreshed.offline) {
+        _applyBoardFailure(cached);
+        return;
+      }
+
+      setState(() {
+        data = refreshed.data;
+        lastUpdated = refreshed.lastUpdated;
+        showingSaved = false;
+        offline = false;
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('[AssistanceBoardScreen] load failed: $e');
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+        if (data != null) {
+          // Keep whatever we already had on screen instead of replacing a
+          // readable board with an error.
+          offline = true;
+          showingSaved = true;
+        } else {
+          // errorMessage ensures the null-data fallback is never reached.
+          errorMessage =
+              'Could not load the assistance board. Pull down to retry.';
+        }
+      });
+    } finally {
       _loadInProgress = false;
-      return;
     }
-
-    final refreshed = await AssistanceRepository.instance.refreshBoard(
-      userId: userId,
-      role: role,
-      municipality: municipality,
-    );
-
-    if (!mounted) {
-      _loadInProgress = false;
-      return;
-    }
-
-    if (refreshed.offline) {
-      _applyBoardFailure(cached);
-      _loadInProgress = false;
-      return;
-    }
-
-    setState(() {
-      data = refreshed.data;
-      lastUpdated = refreshed.lastUpdated;
-      showingSaved = false;
-      offline = false;
-      isLoading = false;
-    });
-    _loadInProgress = false;
   }
 
   void _applyBoardFailure(AssistanceBoardLoadResult cached) {
@@ -164,7 +180,14 @@ class _AssistanceBoardScreenState extends State<AssistanceBoardScreen>
   }
 
   Future<bool> _isNetworkAvailable() async {
-    final results = await Connectivity().checkConnectivity();
+    // A stalled connectivity plugin must not be treated as "offline", or a slow
+    // check would show the offline message on a working connection. Returning
+    // an empty list means "no result", i.e. assume online and let the real
+    // request decide.
+    final results = await Connectivity().checkConnectivity().timeout(
+          const Duration(seconds: 5),
+          onTimeout: () => const <ConnectivityResult>[],
+        );
     return !results.contains(ConnectivityResult.none);
   }
 
@@ -364,6 +387,15 @@ class _AssistanceBoardScreenState extends State<AssistanceBoardScreen>
     if (errorMessage != null)
       return ErrorState(message: errorMessage!, onRetry: loadBoard);
 
+    // data should always be non-null here because every path that sets
+    // isLoading=false also sets data or errorMessage. The fallback guards
+    // against any future code path that might violate that invariant.
+    if (data == null) {
+      return ErrorState(
+        message: 'Could not load the assistance board. Pull down to retry.',
+        onRetry: loadBoard,
+      );
+    }
     final board = data!;
     final canPledge = board['can_pledge'] == true && !offline;
     final zeroCenters = (board['zero_pledge_centers'] as List?) ?? const [];

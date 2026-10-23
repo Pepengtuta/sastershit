@@ -178,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    'Demo Only',
+                    'Railway',
                     style: theme.textTheme.bodySmall?.copyWith(color: mutedColor, fontSize: 12),
                   ),
                 ],

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 24, 2026 at 06:37 AM
+-- Generation Time: Oct 05, 2026 at 01:42 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -42,6 +42,13 @@ CREATE TABLE `alerts` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `alerts`
+--
+
+INSERT INTO `alerts` (`id`, `title`, `alert_type`, `severity`, `message`, `instructions`, `status`, `start_datetime`, `end_datetime`, `target_type`, `created_by`, `created_at`) VALUES
+(23, 'gg', 'Flood', 'High', 'g', 'g', 'Active', '2026-10-01 09:29:00', '2026-10-04 09:29:00', 'all', 76, '2026-10-01 01:29:19');
+
 -- --------------------------------------------------------
 
 --
@@ -55,6 +62,13 @@ CREATE TABLE `alert_barangays` (
   `is_read` tinyint(1) DEFAULT 0,
   `read_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `alert_barangays`
+--
+
+INSERT INTO `alert_barangays` (`id`, `alert_id`, `barangay_id`, `is_read`, `read_at`) VALUES
+(30, 23, 32, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -312,7 +326,8 @@ INSERT INTO `evacuation_centers` (`id`, `barangay`, `municipality`, `center_name
 (39, 'Poblacion', 'Ibajay', 'Ibajay Sports Center', 'Gym', 9999, 0, 'Available', 'Hotdog', '00000000000', '2026-09-13 07:46:42', 11.819014000, 122.162119000, 0),
 (40, 'Colongcolong', 'Ibajay', 'Aklan State University - Ibajay Campus', 'Evacuation Center', 9999, 0, 'Available', 'Peter parker', '99999999999', '2026-09-13 08:41:40', 11.818187000, 122.171434000, 0),
 (41, 'Maloco', 'Ibajay', 'Maloco Covered Court', 'Evacuation Center', 99999, 0, 'Available', 'Justine Bieber', '09876543212', '2026-09-13 09:43:26', NULL, NULL, 0),
-(42, 'Unat', 'Ibajay', 'Unat HQ', 'Datacenter', 10000, 0, 'Available', 'blue', '999999999999', '2026-09-17 13:15:04', NULL, NULL, 0);
+(42, 'Unat', 'Ibajay', 'Unat HQ', 'Datacenter', 10000, 0, 'Available', 'blue', '999999999999', '2026-09-17 13:15:04', NULL, NULL, 0),
+(43, 'Rizal', 'Ibajay', 'Unat HQ', 'tower', 9999, 0, '', 'Justine', '09888999888', '2026-09-24 07:09:34', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -342,17 +357,6 @@ CREATE TABLE `evac_assistance` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `evac_assistance`
---
-
-INSERT INTO `evac_assistance` (`id`, `evac_center_id`, `need_id`, `donor_user_id`, `donor_label`, `item`, `unit`, `qty`, `qty_received`, `status`, `pledged_at`, `sent_at`, `delivered_at`, `received_at`, `confirmed_by_user_id`, `remarks`, `over_pledge_flag`, `is_demo`, `created_at`) VALUES
-(58, 19, 49, 76, 'MDRRMO Ibajay', 'water', '', 25, 15, 'Delivered', '2026-09-17 01:14:21', '2026-09-17 01:14:28', '2026-09-17 01:14:32', '2026-09-17 01:15:30', 107, '', 0, 0, '2026-09-17 01:14:21'),
-(59, 19, 49, 79, 'PDRRMO', 'water', '', 25, 25, 'Delivered', '2026-09-17 01:30:40', '2026-09-17 01:30:43', '2026-09-17 01:30:46', '2026-09-17 01:32:57', 58, '', 0, 0, '2026-09-17 01:30:40'),
-(60, 19, 49, 87, 'Governor', 'water', '', 25, 25, 'Delivered', '2026-09-17 01:31:17', '2026-09-17 01:31:21', '2026-09-17 01:31:21', '2026-09-17 01:43:30', 58, '', 0, 0, '2026-09-17 01:31:17'),
-(61, 19, 49, 76, 'MDRRMO Ibajay', 'water', '', 25, 25, 'Delivered', '2026-09-17 01:45:18', '2026-09-17 01:49:25', '2026-09-17 01:52:33', '2026-09-17 02:00:13', 58, '', 0, 0, '2026-09-17 01:45:18'),
-(62, 19, 49, 79, 'PDRRMO', 'water', '', 10, NULL, 'Pledged', '2026-09-17 12:03:53', NULL, NULL, NULL, NULL, '', 0, 0, '2026-09-17 12:03:53');
-
 -- --------------------------------------------------------
 
 --
@@ -369,13 +373,6 @@ CREATE TABLE `evac_center_needs` (
   `created_by` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `evac_center_needs`
---
-
-INSERT INTO `evac_center_needs` (`id`, `evac_center_id`, `item`, `unit`, `qty_needed`, `is_demo`, `created_by`, `created_at`) VALUES
-(49, 19, 'water', 'liters', 100, 1, 107, '2026-09-17 01:13:28');
 
 -- --------------------------------------------------------
 
@@ -402,13 +399,6 @@ CREATE TABLE `evac_center_profile` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `evac_center_profile`
---
-
-INSERT INTO `evac_center_profile` (`id`, `evac_center_id`, `total_evacuees`, `families`, `pregnant`, `lactating_mothers`, `infants`, `children`, `older_persons`, `pwd`, `sick`, `injured`, `source`, `is_demo`, `updated_by`, `updated_at`) VALUES
-(34, 19, 200, 100, 0, 0, 0, 100, 0, 0, 0, 0, 'manual', 1, 107, '2026-09-17 01:13:28');
-
 -- --------------------------------------------------------
 
 --
@@ -425,6 +415,13 @@ CREATE TABLE `incident_attachments` (
   `file_size` int(11) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `incident_attachments`
+--
+
+INSERT INTO `incident_attachments` (`id`, `incident_report_id`, `uploaded_by`, `file_name`, `file_path`, `file_type`, `file_size`, `created_at`) VALUES
+(13, 122, 127, '0scaled_1000251368.jpg', 'uploads/incidents/report_122/photo_20260925130716_db83d88595bd.jpg', 'photo', 1289373, '2026-09-25 11:07:16');
 
 -- --------------------------------------------------------
 
@@ -469,12 +466,8 @@ CREATE TABLE `incident_reports` (
 --
 
 INSERT INTO `incident_reports` (`id`, `user_id`, `barangay_id`, `disaster_type`, `incident_datetime`, `exact_location`, `road_status`, `road_blockage_causes`, `road_location`, `evacuation_needed`, `evacuation_center_id`, `evac_households`, `evac_adults`, `evac_children`, `evac_members`, `description`, `assistance_needed`, `latitude`, `longitude`, `affected_people`, `injured`, `dead`, `missing`, `status`, `referred_to_pho`, `is_demo`, `created_at`, `client_uuid`, `pin_outside_area`) VALUES
-(110, 108, 35, 'Flood', '2026-09-17 09:09:00', NULL, 'Obstructed', 'Flooding / Deep Water', '', 'Yes', 19, 100, 100, 100, 100, 'gg', '', 11.8054218, 122.1952402, 3205, 0, 0, 100, 'Referred to PHO', 1, 0, '2026-09-17 01:10:09', NULL, 0),
-(112, 127, 47, 'Storm Surge', '2026-09-17 21:16:00', NULL, 'Partially Passable', 'Fallen Tree', '', 'Yes', 42, 10, 10, 10, 10, 'gg', '', 11.7768851, 122.1637321, 9999, 0, 0, 0, 'Under MDR Review', 0, 0, '2026-09-17 13:17:38', NULL, 0),
-(116, 117, 35, 'Flood', '2026-09-21 18:12:00', NULL, 'Obstructed', 'Damaged / Collapsed Bridge', '', 'No', NULL, 0, 0, 0, 0, 'gg', '', 11.8055663, 122.1976364, 3205, 0, 0, 0, 'Pending', 0, 0, '2026-09-21 10:16:22', '648d26eb-0e55-4396-931c-843a5ab04ec4', 0),
-(117, 103, 37, 'Landslide', '2026-09-21 19:24:00', 'riversude', 'Partially Passable', '', '', 'Yes', 21, 10, 10, 10, 10, 'gg', '', 11.8255460, 122.1274118, 2692, 5, 0, 0, 'Reviewed', 0, 0, '2026-09-21 11:31:54', '0c3d4e41-53a7-4667-b275-ee8cdfcd9371', 0),
-(118, 83, 46, 'Earthquake', '2026-09-22 13:18:00', 'riverside', 'Passable', '', '', 'No', NULL, 0, 0, 0, 0, 'gg', '', 11.7806995, 122.1728587, 1445, 9, 0, 0, 'Pending', 0, 0, '2026-09-22 05:22:04', '2a92a396-1517-470c-95ba-9db0481c3eb0', 0),
-(119, 83, 46, 'Fire', '2026-09-22 13:28:00', NULL, 'Passable', '', 'g', 'No', NULL, 0, 0, 0, 0, 'gg', '', 11.7993398, 122.1713634, 1445, 0, 9, 0, 'Forwarded to PCF', 0, 0, '2026-09-22 05:32:08', '3f5ad1d1-ec3f-4dcf-87d0-6609eeceba17', 0);
+(122, 127, 47, 'Flood', '2026-09-25 19:03:00', 'river chapel', 'Partially Passable', 'Downed Power Line / Electric Post', 'river', 'Yes', 42, 9, 9, 9, 9, 'gg', '', 11.7861591, 122.1672099, 9999, 0, 0, 0, 'Pending', 0, 0, '2026-09-25 11:07:15', 'f1a148ef-af9c-47a9-8eb2-2e6940f0f2e9', 0),
+(123, 58, 35, 'Typhoon', '2026-10-03 19:15:00', 'Naisud, Ibajay, Aklan', 'Passable', '', 'ss', 'No', NULL, 0, 0, 0, 0, 'f', '', 11.7824218, 122.1847268, 3205, 0, 2, 0, 'Forwarded to PCF', 0, 0, '2026-10-03 11:16:41', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -497,22 +490,10 @@ CREATE TABLE `incident_status_logs` (
 --
 
 INSERT INTO `incident_status_logs` (`id`, `incident_report_id`, `old_status`, `new_status`, `remarks`, `updated_by`, `created_at`) VALUES
-(203, 110, NULL, 'Pending', 'Report submitted from mobile app.', 108, '2026-09-17 01:10:09'),
-(204, 110, 'Pending', 'Reviewed', 'Report reviewed by Chairman.', 58, '2026-09-17 01:12:51'),
-(205, 110, 'Reviewed', 'Forwarded to PCF', 'Report forwarded to Municipal for coordination.', 58, '2026-09-17 01:12:55'),
-(206, 110, 'Forwarded to PCF', 'Under MDR Review', 'Report acknowledged and under MDR review.', 76, '2026-09-17 12:23:27'),
-(207, 110, 'Under MDR Review', 'Referred to PHO', 'Report referred to Provincial.', 76, '2026-09-17 12:23:30'),
-(208, 112, NULL, 'Pending', 'Report submitted from mobile app.', 127, '2026-09-17 13:17:38'),
-(209, 112, 'Pending', 'Reviewed', 'Report reviewed by Chairman.', 70, '2026-09-17 13:17:52'),
-(210, 112, 'Reviewed', 'Forwarded to PCF', 'Report forwarded to Municipal for coordination.', 70, '2026-09-17 13:17:55'),
-(211, 112, 'Forwarded to PCF', 'Under MDR Review', 'MDR Ibajay Admin (PCF) changed this report status to Under MDR Review from mobile app.', 76, '2026-09-17 13:23:01'),
-(215, 116, NULL, 'Pending', 'Report submitted from mobile app.', 117, '2026-09-21 10:16:22'),
-(216, 117, NULL, 'Pending', 'Report submitted from mobile app.', 103, '2026-09-21 11:31:54'),
-(217, 117, 'Pending', 'Reviewed', 'Report reviewed by Chairman.', 60, '2026-09-21 14:09:58'),
-(218, 118, NULL, 'Pending', 'Report submitted from mobile app.', 83, '2026-09-22 05:22:04'),
-(219, 119, NULL, 'Pending', 'Report submitted from mobile app.', 83, '2026-09-22 05:32:08'),
-(220, 119, 'Pending', 'Reviewed', 'Report reviewed by Chairman.', 69, '2026-09-24 04:21:28'),
-(221, 119, 'Reviewed', 'Forwarded to PCF', 'Report forwarded to Municipal for coordination.', 69, '2026-09-24 04:21:52');
+(226, 122, NULL, 'Pending', 'Report submitted from mobile app.', 127, '2026-09-25 11:07:15'),
+(227, 123, NULL, 'Pending', 'Report submitted by barangay.', 58, '2026-10-03 11:16:41'),
+(228, 123, 'Pending', 'Reviewed', 'Report reviewed by Chairman.', 58, '2026-10-03 11:16:48'),
+(229, 123, 'Reviewed', 'Forwarded to PCF', 'Report forwarded to Municipal for coordination.', 58, '2026-10-03 11:16:54');
 
 -- --------------------------------------------------------
 
@@ -893,13 +874,13 @@ ALTER TABLE `user_activity_logs`
 -- AUTO_INCREMENT for table `alerts`
 --
 ALTER TABLE `alerts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `alert_barangays`
 --
 ALTER TABLE `alert_barangays`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `alert_reads`
@@ -929,7 +910,7 @@ ALTER TABLE `emergency_hotlines`
 -- AUTO_INCREMENT for table `evacuation_centers`
 --
 ALTER TABLE `evacuation_centers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `evac_assistance`
@@ -953,19 +934,19 @@ ALTER TABLE `evac_center_profile`
 -- AUTO_INCREMENT for table `incident_attachments`
 --
 ALTER TABLE `incident_attachments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `incident_reports`
 --
 ALTER TABLE `incident_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=120;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=124;
 
 --
 -- AUTO_INCREMENT for table `incident_status_logs`
 --
 ALTER TABLE `incident_status_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=222;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=230;
 
 --
 -- AUTO_INCREMENT for table `pcf_facilities`
