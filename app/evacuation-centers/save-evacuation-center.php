@@ -88,7 +88,7 @@ $InsertQuery = "INSERT INTO evacuation_centers
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = mysqli_prepare($connection, $InsertQuery);
-mysqli_stmt_bind_param($stmt, "ssssiiiss", $V_barangay, $V_municipality, $V_center_name, $V_center_type, $V_capacity, $V_current_evacuees, $V_status, $V_contact_person, $V_contact_number);
+mysqli_stmt_bind_param($stmt, "ssssiisss", $V_barangay, $V_municipality, $V_center_name, $V_center_type, $V_capacity, $V_current_evacuees, $V_status, $V_contact_person, $V_contact_number);
 
 if (mysqli_stmt_execute($stmt)) {
     header("Location: ../../public/evacuation-centers.php?created=1");

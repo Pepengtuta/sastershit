@@ -91,7 +91,7 @@ $Insert = "INSERT INTO evac_assistance
     VALUES (?, ?, ?, ?, ?, ?, ?, 'Pledged', NOW(), ?, ?)";
 $stmt = mysqli_prepare($connection, $Insert);
 if (!$stmt) send_response(false, "Failed to prepare pledge insert.");
-mysqli_stmt_bind_param($stmt, "iiissiisi", $V_center_id, $V_need_id, $acting_user_id, $V_donor_label, $V_item, $V_unit, $V_qty, $V_remarks, $V_over_pledge);
+mysqli_stmt_bind_param($stmt, "iiisssisi", $V_center_id, $V_need_id, $acting_user_id, $V_donor_label, $V_item, $V_unit, $V_qty, $V_remarks, $V_over_pledge);
 
 if (mysqli_stmt_execute($stmt)) {
     send_response(true, "Pledge recorded. Update its status once the supply is on its way or delivered.", [
