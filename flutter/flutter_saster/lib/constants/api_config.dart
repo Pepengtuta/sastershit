@@ -10,8 +10,15 @@ class ApiConfig {
   static const String baseUrl = '$_root/api';
   static const String fileBaseUrl = _root;
 
-  // Flip to false for plain localhost/LAN browser testing (no ngrok in the loop).
-  // Flip back to true when going through an ngrok URL.
+  
+
+# Local LAN
+// flutter build apk --release --dart-define=API_BASE_URL=http://192.168.123.103/vsp/sastergpt
+
+# Ngrok (https)
+// flutter build apk --release --dart-define=API_BASE_URL=https://cloud-prognosis-boogeyman.ngrok-free.dev/vsp/sastergpt
+
+// -----Flip--to-True-----useNgrokHeader = true; for tunnel for ngrok browser warning shit
   static const bool useNgrokHeader = false;
   static Map<String, String> get ngrokHeaders =>
       useNgrokHeader ? const {'ngrok-skip-browser-warning': 'true'} : const {};
