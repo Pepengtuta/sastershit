@@ -221,7 +221,7 @@ $V_error = $_GET['error'] ?? '';
     <div class="login-card">
 
         <!-- Logo -->
-        <img src="asset/login_logo_pin.png" alt="Obilak Logo" class="login-logo">
+        <img src="asset/login_logo_pin.png" alt="Obilak Logo" class="login-logo" id="loginLogoPin" style="cursor:pointer;">
 
         <!-- Title & subtitle -->
         <h1 class="login-title">Ugyon</h1>
@@ -306,6 +306,40 @@ $V_error = $_GET['error'] ?? '';
             iconEye.style.display = isHidden ? 'none' : '';
             iconEyeOff.style.display = isHidden ? '' : 'none';
         });
+    </script>
+    <script>
+        // Hidden easter egg: click logo 4 times to go to Team page
+        const loginLogoPin = document.getElementById('loginLogoPin');
+        let logoClicks = 0;
+        let logoTimer = null;
+
+        function resetLogoClicks() {
+            logoClicks = 0;
+            if (logoTimer) {
+                clearTimeout(logoTimer);
+                logoTimer = null;
+            }
+        }
+
+        // Reset on normal load and when coming back via back/forward cache
+        window.addEventListener('pageshow', function() {
+            resetLogoClicks();
+        });
+
+        if (loginLogoPin) {
+            loginLogoPin.addEventListener('click', () => {
+                logoClicks++;
+
+                if (logoTimer) clearTimeout(logoTimer);
+                logoTimer = setTimeout(resetLogoClicks, 800);
+
+                if (logoClicks === 4) {
+                    resetLogoClicks();
+                    sessionStorage.setItem('teamFromLogin', 'yes');
+                    window.location.href = 'Team/';
+                }
+            });
+        }
     </script>
 </body>
 

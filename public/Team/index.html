@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script>
+    (function() {
+      if (sessionStorage.getItem('teamFromLogin') !== 'yes') {
+        window.location.replace('../login.php');
+        return;
+      }
+
+      // Remove the ticket only when leaving or refreshing the page
+      window.addEventListener('beforeunload', function() {
+        sessionStorage.removeItem('teamFromLogin');
+      });
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ugyon — Team</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Lexend:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="shit.css">
+</head>
+
+<body>
+  <main id="app">
+
+    <!-- ── MEMBERS CAROUSEL ── -->
+    <audio id="bg-music" src="./Upuan.mp3" loop></audio>
+    <h1 class="team-heading" id="generals-heading" title="Click to play/pause music">Generals</h1>
+    <p class="music-hint" id="music-hint">♪ click to play</p>
+    <section class="carousel">
+      <ul class="carousel__list">
+
+        <li class="carousel__item" tabindex="0">
+          <div class="carousel__image">
+            <img src="./DAN.jpg" alt="Dan Yrel B. Andaleon" width="480" height="720">
+          </div>
+          <div class="carousel__contents">
+            <h2 class="user__name">Dan Yrel B. Andaleon</h2>
+            <h3 class="user__title">Technical Writter</h3>
+          </div>
+          <a class="member-link" href="https://fb.com/dandan.andaleon" target="_blank" rel="noopener">f</a>
+        </li>
+
+        <li class="carousel__item" tabindex="0" data-active>
+          <div class="carousel__image">
+            <img src="./RAMLEE2.jpg" alt="Ramlee Boy B. Laguinday" width="480" height="720">
+          </div>
+          <div class="carousel__contents">
+            <h2 class="user__name">Ramlee Boy B. Laguinday</h2>
+            <h3 class="user__title">Project Manager</h3>
+          </div>
+          <a class="member-link" href="https://fb.com/ramliboy.laguinday" target="_blank" rel="noopener">f</a>
+        </li>
+
+        <li class="carousel__item" tabindex="0">
+          <div class="carousel__image">
+            <img src="./REY.jpg" alt="Reymart Timola" width="480" height="720">
+          </div>
+          <div class="carousel__contents">
+            <h2 class="user__name">Reymart Timola</h2>
+            <h3 class="user__title">Programmer</h3>
+          </div>
+          <a class="member-link" href="https://fb.com/kyutsayz" target="_blank" rel="noopener">f</a>
+        </li>
+
+        <li class="carousel__item" tabindex="0">
+          <div class="carousel__image">
+            <img src="./FRANZ.jpg" alt="Franz" width="480" height="720">
+          </div>
+          <div class="carousel__contents">
+            <h2 class="user__name">Franz</h2>
+            <h3 class="user__title">UI designer</h3>
+          </div>
+          <a class="member-link" href="https://fb.com/franzian.molas" target="_blank" rel="noopener">f</a>
+        </li>
+
+        <li class="carousel__item" tabindex="0">
+          <div class="carousel__image">
+            <img src="./JOSEPH.jpg" alt="Joseph Andrei T. Malumay" width="480" height="720">
+          </div>
+          <div class="carousel__contents">
+            <h2 class="user__name">Joseph Andrei T. Malumay</h2>
+            <h3 class="user__title">Bading</h3>
+          </div>
+          <a class="member-link" href="https://fb.com/josephandrei.malumay" target="_blank" rel="noopener">f</a>
+        </li>
+
+        <li class="carousel__item" tabindex="0">
+          <div class="carousel__image">
+            <img src="./US.jpg" alt="The Generals" width="480" height="720">
+          </div>
+          <div class="carousel__contents">
+            <h2 class="user__name"></h2>
+            <h3 class="user__title">Chrismas Party</h3>
+          </div>
+        </li>
+
+        <li class="carousel__item" tabindex="0">
+          <div class="carousel__image">
+            <img src="./US1.jpeg" alt="The Generals" width="480" height="720">
+          </div>
+          <div class="carousel__contents">
+            <h2 class="user__name"></h2>
+            <h3 class="user__title">PHO</h3>
+          </div>
+        </li>
+
+      </ul>
+
+      <div class="carousel__nav">
+        <button class="prev" id="btn-prev">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path
+              d="M9.586 4l-6.586 6.586a2 2 0 0 0 0 2.828l6.586 6.586a2 2 0 0 0 2.18.434l.145-.068a2 2 0 0 0 1.089-1.78v-2.586h7a2 2 0 0 0 2-2v-4l-.005-.15a2 2 0 0 0-1.995-1.85l-7-.001v-2.585a2 2 0 0 0-3.414-1.414z" />
+          </svg>
+          <span>prev</span>
+        </button>
+        <button class="next" id="btn-next">
+          <span>next</span>
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path
+              d="M12.089 3.634a2 2 0 0 0-1.089 1.78l-.001 2.586h-6.999a2 2 0 0 0-2 2v4l.005.15a2 2 0 0 0 1.995 1.85l6.999-.001.001 2.587a2 2 0 0 0 3.414 1.414l6.586-6.586a2 2 0 0 0 0-2.828l-6.586-6.586a2 2 0 0 0-2.18-.434l-.145.068z" />
+          </svg>
+        </button>
+      </div>
+    </section>
+
+  </main>
+  <script src="script.js"></script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+<a class="social-icon twitter" href="https://twitter.com/simeydotme">
+  <svg viewBox="0 0 24 24">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path
+      d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z">
+    </path>
+  </svg>
+</a>
+<a class="social-icon github" href="https://github.com/simeydotme">
+  <svg viewBox="0 0 24 24">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path
+      d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5">
+    </path>
+  </svg>
+</a>
