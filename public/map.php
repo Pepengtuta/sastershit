@@ -51,25 +51,28 @@ $V_evacuation_markers = [];
 $V_barangay_municipality_where = $V_session_municipality !== ''
     ? "WHERE municipality = '" . mysqli_real_escape_string($connection, $V_session_municipality) . "'"
     : '';
-$V_barangay_query = "SELECT id, name, latitude, longitude FROM barangays $V_barangay_municipality_where ORDER BY municipality ASC, name ASC";
+$V_barangay_query = "SELECT id, name, municipality, latitude, longitude FROM barangays $V_barangay_municipality_where ORDER BY municipality ASC, name ASC";
 $V_barangay_result = mysqli_query($connection, $V_barangay_query);
 
 if ($V_barangay_result) {
     while ($row = mysqli_fetch_assoc($V_barangay_result)) {
         $V_barangay_name = $row['name'];
+        $V_barangay_key = $row['municipality'] . '|' . $V_barangay_name;
 
         $V_barangays[] = [
             "id" => (int)$row['id'],
             "name" => $V_barangay_name,
+            "municipality" => $row['municipality'],
             "latitude" => $row['latitude'],
             "longitude" => $row['longitude']
         ];
 
-        $V_evacuation_centers[$V_barangay_name] = [];
+        $V_evacuation_centers[$V_barangay_key] = [];
 
         if ($row['latitude'] !== null && $row['latitude'] !== '' && $row['longitude'] !== null && $row['longitude'] !== '') {
             $V_barangay_hall_markers[] = [
                 "barangay" => $V_barangay_name,
+                "municipality" => $row['municipality'],
                 "name" => $V_barangay_name . " Barangay Hall",
                 "latitude" => $row['latitude'],
                 "longitude" => $row['longitude']
@@ -82,7 +85,7 @@ if ($V_barangay_result) {
 $V_evac_municipality_where = $V_session_municipality !== ''
     ? "WHERE municipality = '" . mysqli_real_escape_string($connection, $V_session_municipality) . "'"
     : '';
-$V_evac_query = "SELECT id, barangay, center_name, center_type, capacity, current_evacuees, status, contact_person, contact_number, latitude, longitude
+$V_evac_query = "SELECT id, barangay, municipality, center_name, center_type, capacity, current_evacuees, status, contact_person, contact_number, latitude, longitude
                  FROM evacuation_centers
                  $V_evac_municipality_where
                  ORDER BY barangay ASC, center_name ASC";
@@ -91,14 +94,16 @@ $V_evac_result = mysqli_query($connection, $V_evac_query);
 if ($V_evac_result) {
     while ($row = mysqli_fetch_assoc($V_evac_result)) {
         $V_barangay_name = $row['barangay'];
+        $V_barangay_key = $row['municipality'] . '|' . $V_barangay_name;
 
-        if (!isset($V_evacuation_centers[$V_barangay_name])) {
-            $V_evacuation_centers[$V_barangay_name] = [];
+        if (!isset($V_evacuation_centers[$V_barangay_key])) {
+            $V_evacuation_centers[$V_barangay_key] = [];
         }
 
         $V_center_item = [
             "id" => (int)$row['id'],
             "barangay" => $V_barangay_name,
+            "municipality" => $row['municipality'],
             "center_name" => $row['center_name'],
             "center_type" => $row['center_type'],
             "capacity" => (int)$row['capacity'],
@@ -110,7 +115,7 @@ if ($V_evac_result) {
             "longitude" => $row['longitude']
         ];
 
-        $V_evacuation_centers[$V_barangay_name][] = $V_center_item;
+        $V_evacuation_centers[$V_barangay_key][] = $V_center_item;
 
         if ($row['latitude'] !== null && $row['latitude'] !== '' && $row['longitude'] !== null && $row['longitude'] !== '') {
             $V_evacuation_markers[] = $V_center_item;
@@ -590,11 +595,13 @@ var V_subRole = <?php echo json_encode($V_sub_role, JSON_UNESCAPED_UNICODE); ?>;
 var V_sessionBarangayName = <?php echo $V_session_barangay_json; ?>;
 var V_municipality = <?php echo $V_session_municipality_json; ?>;
 var isIbajayPrimary = V_municipality === 'Ibajay';
+var V_primaryMunicipality = isIbajayPrimary ? 'Ibajay' : 'Kalibo';
 
 var map = L.map('barangayMap');
 var barangayLayer = null;
 var selectedLayer = null;
 var selectedBarangayName = null;
+var selectedBarangayKey = null;
 var barangayHallMarkerLayer = L.layerGroup().addTo(map);
 var evacuationMarkerLayer = L.layerGroup().addTo(map);
 var pcfMarkerLayer = L.layerGroup().addTo(map);
@@ -710,6 +717,14 @@ function normalizeName(value) {
     return String(value || '').trim().toLowerCase();
 }
 
+function getBarangayKey(name, municipality) {
+    return String(municipality || '') + '|' + String(name || '');
+}
+
+function getBarangayLabel(name, municipality) {
+    return V_municipality ? name : name + ' (' + municipality + ')';
+}
+
 function makeMarkerIcon(markerClass) {
     /* Icons mirror the app (map_view_screen.dart): hall = account_balance,
        evacuation center = location_city, incident = warning (outlined amber). */
@@ -741,14 +756,17 @@ function hasCoordinates(item) {
     return !isNaN(lat) && !isNaN(lng);
 }
 
-function shouldShowMarkerForBarangay(item, barangayName) {
+function shouldShowMarkerForBarangay(item, barangayName, municipality) {
     if (!barangayName) {
         return true;
     }
-    return normalizeName(item.barangay) === normalizeName(barangayName);
+    if (normalizeName(item.barangay || item.barangay_name) !== normalizeName(barangayName)) {
+        return false;
+    }
+    return !municipality || normalizeName(item.municipality) === normalizeName(municipality);
 }
 
-function renderMapMarkers(barangayName) {
+function renderMapMarkers(barangayName, municipality) {
     barangayHallMarkerLayer.clearLayers();
     evacuationMarkerLayer.clearLayers();
     pcfMarkerLayer.clearLayers();
@@ -757,7 +775,7 @@ function renderMapMarkers(barangayName) {
 
     V_barangayHallMarkers.forEach(function(markerItem) {
         if (!hasCoordinates(markerItem)) return;
-        if (!shouldShowMarkerForBarangay(markerItem, barangayName)) return;
+        if (!shouldShowMarkerForBarangay(markerItem, barangayName, municipality)) return;
 
         var lat = parseFloat(markerItem.latitude);
         var lng = parseFloat(markerItem.longitude);
@@ -765,14 +783,15 @@ function renderMapMarkers(barangayName) {
         marker.bindPopup(
             '<strong>' + escapeHtml(markerItem.name) + '</strong><br>' +
             'Type: Barangay Hall<br>' +
-            'Barangay: ' + escapeHtml(markerItem.barangay)
+            'Barangay: ' + escapeHtml(markerItem.barangay) + '<br>' +
+            'Municipality: ' + escapeHtml(markerItem.municipality)
         );
         marker.addTo(barangayHallMarkerLayer);
     });
 
     V_evacuationMarkers.forEach(function(center) {
         if (!hasCoordinates(center)) return;
-        if (!shouldShowMarkerForBarangay(center, barangayName)) return;
+        if (!shouldShowMarkerForBarangay(center, barangayName, municipality)) return;
 
         var lat = parseFloat(center.latitude);
         var lng = parseFloat(center.longitude);
@@ -781,6 +800,7 @@ function renderMapMarkers(barangayName) {
             '<strong>' + escapeHtml(center.center_name) + '</strong><br>' +
             'Type: Evacuation Center<br>' +
             'Barangay: ' + escapeHtml(center.barangay) + '<br>' +
+            'Municipality: ' + escapeHtml(center.municipality) + '<br>' +
             'Status: ' + escapeHtml(center.status || 'No status') + '<br>' +
             'Current Evacuees: ' + Number(center.current_evacuees || 0).toLocaleString()
         );
@@ -803,7 +823,7 @@ function renderMapMarkers(barangayName) {
 
     V_incidentMarkers.forEach(function(incident) {
         if (!hasCoordinates(incident)) return;
-        if (barangayName && normalizeName(incident.barangay_name) !== normalizeName(barangayName)) return;
+        if (!shouldShowMarkerForBarangay(incident, barangayName, municipality)) return;
 
         var lat = parseFloat(incident.latitude);
         var lng = parseFloat(incident.longitude);
@@ -824,23 +844,27 @@ function renderMapMarkers(barangayName) {
     });
 }
 
-function selectBarangay(barangayName, zoomToBarangay) {
+function selectBarangay(barangayName, municipality, zoomToBarangay) {
     if (!barangayLayer) {
         return;
     }
 
-    if (selectedBarangayName === barangayName) {
+    municipality = municipality || V_primaryMunicipality;
+    var barangayKey = getBarangayKey(barangayName, municipality);
+
+    if (selectedBarangayKey === barangayKey) {
         clearSelectedBarangay();
         return;
     }
 
     selectedBarangayName = barangayName;
+    selectedBarangayKey = barangayKey;
 
     barangayLayer.eachLayer(function(layer) {
         var layerName = getBarangayName(layer.feature);
         barangayLayer.resetStyle(layer);
 
-        if (layerName === barangayName) {
+        if (layerName === barangayName && municipality === V_primaryMunicipality) {
             selectedLayer = layer;
             layer.setStyle(selectedStyle);
 
@@ -856,13 +880,14 @@ function selectBarangay(barangayName, zoomToBarangay) {
         }
     });
 
-    setActiveBarangayList(barangayName);
-    renderEvacuationCenters(barangayName);
-    renderMapMarkers(barangayName);
+    setActiveBarangayList(barangayKey);
+    renderEvacuationCenters(barangayKey, getBarangayLabel(barangayName, municipality));
+    renderMapMarkers(barangayName, municipality);
 }
 
 function clearSelectedBarangay() {
     selectedBarangayName = null;
+    selectedBarangayKey = null;
     selectedLayer = null;
 
     if (barangayLayer) {
@@ -884,11 +909,11 @@ function resetBarangayMap() {
     clearSelectedBarangay();
 }
 
-function setActiveBarangayList(barangayName) {
+function setActiveBarangayList(barangayKey) {
     var items = document.querySelectorAll('.barangay-item');
 
     items.forEach(function(item) {
-        if (item.getAttribute('data-name') === barangayName) {
+        if (item.getAttribute('data-key') === barangayKey) {
             item.classList.add('active');
         } else {
             item.classList.remove('active');
@@ -896,30 +921,32 @@ function setActiveBarangayList(barangayName) {
     });
 }
 
-function renderBarangayList(names) {
+function renderBarangayList(items) {
     var list = document.getElementById('barangayList');
     var html = '';
 
-    names.forEach(function(name) {
-        html += '<button type="button" class="barangay-item" data-name="' + escapeHtml(name) + '" onclick="selectBarangay(\'' + escapeJs(name) + '\', true)">';
-        html += '<span>' + escapeHtml(name) + '</span>';
+    items.forEach(function(item) {
+        var key = getBarangayKey(item.name, item.municipality);
+        var label = getBarangayLabel(item.name, item.municipality);
+        html += '<button type="button" class="barangay-item" data-key="' + escapeHtml(key) + '" onclick="selectBarangay(\'' + escapeJs(item.name) + '\', \'' + escapeJs(item.municipality) + '\', true)">';
+        html += '<span>' + escapeHtml(label) + '</span>';
         html += '</button>';
     });
 
     list.innerHTML = html;
 }
 
-function renderEvacuationCenters(barangayName) {
+function renderEvacuationCenters(barangayKey, barangayLabel) {
     var subtitle = document.getElementById('selectedBarangaySubtitle');
     var panel = document.getElementById('evacuationPanel');
 
-    if (!barangayName) {
+    if (!barangayKey) {
         subtitle.innerHTML = 'No barangay selected.';
         panel.innerHTML = '<div class="map-empty">Select a barangay to view evacuation centers.</div>';
         return;
     }
 
-    var centers = V_evacuationCenters[barangayName] || [];
+    var centers = V_evacuationCenters[barangayKey] || [];
     var openCount = 0;
     var evacueeCount = 0;
 
@@ -931,7 +958,7 @@ function renderEvacuationCenters(barangayName) {
         evacueeCount += Number(center.current_evacuees || 0);
     });
 
-    subtitle.innerHTML = 'Barangay: ' + escapeHtml(barangayName);
+    subtitle.innerHTML = 'Barangay: ' + escapeHtml(barangayLabel);
 
     var html = '';
     html += '<div class="evac-summary">';
@@ -976,7 +1003,7 @@ function renderEvacuationCenters(barangayName) {
     // ── Recent Incident Brief ──────────────────────────────────────────────
     var recentIncident = null;
     for (var i = 0; i < V_incidentMarkers.length; i++) {
-        if (normalizeName(V_incidentMarkers[i].barangay_name) === normalizeName(barangayName)) {
+        if (getBarangayKey(V_incidentMarkers[i].barangay_name, V_incidentMarkers[i].municipality) === selectedBarangayKey) {
             recentIncident = V_incidentMarkers[i];
             break;
         }
@@ -1033,9 +1060,9 @@ function escapeJs(value) {
         .replace(/"/g, '\\"');
 }
 
-function getBarangayNamesFromDatabase() {
+function getBarangaysFromDatabase() {
     return V_barangays.map(function(item) {
-        return item.name;
+        return { name: item.name, municipality: item.municipality };
     });
 }
 
@@ -1065,7 +1092,7 @@ function loadPrimaryLayer(url, onLoaded) {
             return response.json();
         })
         .then(function(geojsonData) {
-            var barangayNames = getBarangayNamesFromDatabase();
+            var barangayItems = getBarangaysFromDatabase();
 
             barangayLayer = L.geoJSON(geojsonData, {
                 style: function(feature) {
@@ -1098,20 +1125,20 @@ function loadPrimaryLayer(url, onLoaded) {
                             }
                         },
                         click: function() {
-                            selectBarangay(barangayName, true);
+                            selectBarangay(barangayName, V_primaryMunicipality, true);
                         }
                     });
                 }
             }).addTo(map);
 
-            if (barangayNames.length === 0) {
+            if (barangayItems.length === 0) {
                 geojsonData.features.forEach(function(feature) {
-                    barangayNames.push(getBarangayName(feature));
+                    barangayItems.push({ name: getBarangayName(feature), municipality: V_primaryMunicipality });
                 });
-                barangayNames.sort();
+                barangayItems.sort(function(a, b) { return a.name.localeCompare(b.name); });
             }
 
-            renderBarangayList(barangayNames);
+            renderBarangayList(barangayItems);
 
             map.fitBounds(barangayLayer.getBounds(), {
                 padding: [18, 18]
@@ -1120,17 +1147,17 @@ function loadPrimaryLayer(url, onLoaded) {
             renderMapMarkers('');
 
             if (V_userRole === 'barangay' && V_sessionBarangayName !== '') {
-                var matchedBarangay = '';
+                var matchedBarangay = null;
 
-                barangayNames.forEach(function(name) {
-                    if (normalizeName(name) === normalizeName(V_sessionBarangayName)) {
-                        matchedBarangay = name;
+                barangayItems.forEach(function(item) {
+                    if (normalizeName(item.name) === normalizeName(V_sessionBarangayName)) {
+                        matchedBarangay = item;
                     }
                 });
 
-                if (matchedBarangay !== '') {
+                if (matchedBarangay) {
                     setTimeout(function() {
-                        selectBarangay(matchedBarangay, true);
+                        selectBarangay(matchedBarangay.name, matchedBarangay.municipality, true);
                     }, 250);
                 }
             }
@@ -1138,7 +1165,7 @@ function loadPrimaryLayer(url, onLoaded) {
             if (onLoaded) onLoaded();
         })
         .catch(function(error) {
-            renderBarangayList(getBarangayNamesFromDatabase());
+            renderBarangayList(getBarangaysFromDatabase());
             document.getElementById('evacuationPanel').innerHTML = '<div class="map-empty">' + escapeHtml(error.message) + '</div>';
             map.setView([11.7060, 122.3640], 13);
             renderMapMarkers('');

@@ -14,6 +14,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'barangay') {
 $V_user_id = (int)$_SESSION['user_id'];
 $V_barangay_id = (int)$_SESSION['barangay_id'];
 $V_barangay_name = $_SESSION['barangay_name'] ?? '';
+$V_municipality = $_SESSION['municipality'] ?? '';
 
 $V_disaster_type = trim($_POST['disaster_type'] ?? '');
 $V_exact_location = trim($_POST['exact_location'] ?? '');
@@ -135,10 +136,11 @@ if ($V_evacuation_needed == 'Yes' && $V_evacuation_center_id != '') {
     $CheckCenterQuery = "SELECT id FROM evacuation_centers
                          WHERE id = ?
                          AND barangay = ?
+                         AND municipality = ?
                          AND status IN ('Available', 'Open')
                          LIMIT 1";
     $check_stmt = mysqli_prepare($connection, $CheckCenterQuery);
-    mysqli_stmt_bind_param($check_stmt, "is", $V_center_id, $V_barangay_name);
+    mysqli_stmt_bind_param($check_stmt, "iss", $V_center_id, $V_barangay_name, $V_municipality);
     mysqli_stmt_execute($check_stmt);
     $CheckCenterResult = mysqli_stmt_get_result($check_stmt);
 

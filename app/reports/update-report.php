@@ -14,6 +14,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'barangay') {
 $V_user_id = (int)$_SESSION['user_id'];
 $V_barangay_id = (int)$_SESSION['barangay_id'];
 $V_barangay_name = $_SESSION['barangay_name'] ?? '';
+$V_municipality = $_SESSION['municipality'] ?? '';
 $V_report_id = (int)($_POST['report_id'] ?? 0);
 
 if ($V_report_id <= 0) {
@@ -22,7 +23,10 @@ if ($V_report_id <= 0) {
 }
 
 // Confirm the report belongs to this barangay and is still editable (Pending).
-$OwnStmt = mysqli_prepare($connection, "SELECT status, evacuation_center_id FROM incident_reports WHERE id = ? AND barangay_id = ? LIMIT 1");
+$OwnStmt = mysqli_prepare($connection, "SELECT ir.status, ir.evacuation_center_id, ec.barangay AS center_barangay, ec.municipality AS center_municipality
+                                        FROM incident_reports ir
+                                        LEFT JOIN evacuation_centers ec ON ec.id = ir.evacuation_center_id
+                                        WHERE ir.id = ? AND ir.barangay_id = ? LIMIT 1");
 mysqli_stmt_bind_param($OwnStmt, "ii", $V_report_id, $V_barangay_id);
 mysqli_stmt_execute($OwnStmt);
 $OwnResult = mysqli_stmt_get_result($OwnStmt);
@@ -154,25 +158,38 @@ if ($V_pin_outside) {
 
 $V_evacuation_center_id_final = null;
 
-if ($V_evacuation_needed == 'Yes' && $V_evacuation_center_id != '') {
+if ($V_evacuation_needed == 'Yes') {
+    if ($V_evacuation_center_id == '') {
+        header("Location: ../../public/edit-incident-report.php?id=" . $V_report_id . "&error=center");
+        exit;
+    }
+
     $V_center_id = (int)$V_evacuation_center_id;
 
     $CheckCenterQuery = "SELECT id FROM evacuation_centers
                          WHERE id = ?
                          AND barangay = ?
+                         AND municipality = ?
                          AND status IN ('Available', 'Open')
                          LIMIT 1";
     $check_stmt = mysqli_prepare($connection, $CheckCenterQuery);
-    mysqli_stmt_bind_param($check_stmt, "is", $V_center_id, $V_barangay_name);
+    mysqli_stmt_bind_param($check_stmt, "iss", $V_center_id, $V_barangay_name, $V_municipality);
     mysqli_stmt_execute($check_stmt);
     $CheckCenterResult = mysqli_stmt_get_result($check_stmt);
 
     if ($CheckCenterResult && mysqli_num_rows($CheckCenterResult) > 0) {
         $V_evacuation_center_id_final = $V_center_id;
-    } elseif ($V_center_id === $V_existing_center_id) {
+    } elseif ($V_center_id === $V_existing_center_id
+              && ($V_existing['center_barangay'] ?? '') === $V_barangay_name
+              && ($V_existing['center_municipality'] ?? '') === $V_municipality) {
         // Keep the center that was already on the report even if it is no
         // longer in the Available/Open list.
         $V_evacuation_center_id_final = $V_center_id;
+    }
+
+    if ($V_evacuation_center_id_final === null) {
+        header("Location: ../../public/edit-incident-report.php?id=" . $V_report_id . "&error=center");
+        exit;
     }
 } else {
     $V_evacuation_needed = 'No';

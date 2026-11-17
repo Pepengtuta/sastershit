@@ -12,6 +12,7 @@ include "../app/includes/header.php";
 include "../app/includes/sidebar.php";
 
 $V_barangay_name = $_SESSION['barangay_name'];
+$V_municipality = $_SESSION['municipality'] ?? '';
 
 // Fetch the reporting barangay's population for auto-filling the affected count.
 $V_barangay_population = (int)($_SESSION['population'] ?? 0);
@@ -27,9 +28,9 @@ if ($V_barangay_population === 0 && !empty($_SESSION['barangay_id'])) {
 
 $DisasterResult = mysqli_query($connection, "SELECT * FROM disaster_types WHERE status = 'Active' ORDER BY id ASC");
 
-$CenterQuery = "SELECT * FROM evacuation_centers WHERE barangay = ? AND status IN ('Available', 'Open') ORDER BY center_name ASC";
+$CenterQuery = "SELECT * FROM evacuation_centers WHERE barangay = ? AND municipality = ? AND status IN ('Available', 'Open') ORDER BY center_name ASC";
 $CenterStmt = mysqli_prepare($connection, $CenterQuery);
-mysqli_stmt_bind_param($CenterStmt, "s", $V_barangay_name);
+mysqli_stmt_bind_param($CenterStmt, "ss", $V_barangay_name, $V_municipality);
 mysqli_stmt_execute($CenterStmt);
 $CenterResult = mysqli_stmt_get_result($CenterStmt);
 

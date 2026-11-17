@@ -10,6 +10,7 @@ if ($_SESSION['role'] != 'barangay') {
 
 $V_barangay_id = (int)($_SESSION['barangay_id'] ?? 0);
 $V_barangay_name = $_SESSION['barangay_name'] ?? '';
+$V_municipality = $_SESSION['municipality'] ?? '';
 $V_report_id = (int)($_GET['id'] ?? 0);
 
 if ($V_report_id <= 0) {
@@ -54,9 +55,9 @@ $V_stored_type_present = in_array($V_stored_type, $V_disaster_names, true);
 
 // Available/Open centers for this barangay; keep the currently selected center
 // listed even if it is no longer available/open.
-$CenterQuery = "SELECT * FROM evacuation_centers WHERE barangay = ? AND status IN ('Available', 'Open') ORDER BY center_name ASC";
+$CenterQuery = "SELECT * FROM evacuation_centers WHERE barangay = ? AND municipality = ? AND status IN ('Available', 'Open') ORDER BY center_name ASC";
 $CenterStmt = mysqli_prepare($connection, $CenterQuery);
-mysqli_stmt_bind_param($CenterStmt, "s", $V_barangay_name);
+mysqli_stmt_bind_param($CenterStmt, "ss", $V_barangay_name, $V_municipality);
 mysqli_stmt_execute($CenterStmt);
 $CenterResult = mysqli_stmt_get_result($CenterStmt);
 $V_centers = [];
@@ -66,12 +67,12 @@ $V_selected_center_id = (int)($V_report['evacuation_center_id'] ?? 0);
 $V_selected_center_present = false;
 foreach ($V_centers as $V_c) { if ((int)$V_c['id'] === $V_selected_center_id) { $V_selected_center_present = true; } }
 if ($V_selected_center_id > 0 && !$V_selected_center_present) {
-    $ExtraStmt = mysqli_prepare($connection, "SELECT * FROM evacuation_centers WHERE id = ? LIMIT 1");
-    mysqli_stmt_bind_param($ExtraStmt, "i", $V_selected_center_id);
+    $ExtraStmt = mysqli_prepare($connection, "SELECT * FROM evacuation_centers WHERE id = ? AND barangay = ? AND municipality = ? LIMIT 1");
+    mysqli_stmt_bind_param($ExtraStmt, "iss", $V_selected_center_id, $V_barangay_name, $V_municipality);
     mysqli_stmt_execute($ExtraStmt);
     $ExtraResult = mysqli_stmt_get_result($ExtraStmt);
     $V_extra = mysqli_fetch_assoc($ExtraResult);
-    if ($V_extra) { $V_centers[] = $V_extra; }
+    if ($V_extra) { $V_centers[] = $V_extra; $V_selected_center_present = true; }
 }
 
 // Pre-parse the saved incident date/time into date + 12h pieces.
@@ -130,6 +131,8 @@ $V_road_causes_list = ['Fallen Tree', 'Downed Power Line / Electric Post', 'Floo
             <div class="alert alert-danger py-2">
                 <?php if ($_GET['error'] === 'number') { ?>
                     Affected, Injured, Dead, Missing, and evacuation counts must be valid non-negative numbers.
+                <?php } elseif ($_GET['error'] === 'center') { ?>
+                    Please select a valid evacuation center in your barangay.
                 <?php } else { ?>
                     Please check required fields.
                 <?php } ?>
@@ -310,11 +313,11 @@ $V_road_causes_list = ['Fallen Tree', 'Downed Power Line / Electric Post', 'Floo
                             </option>
                         <?php } ?>
                     </select>
-                    <div class="form-text">Available/open centers in <?php echo h($V_barangay_name); ?> are listed. Your current selection is kept.</div>
+                    <div class="form-text">Available/open centers in <?php echo h($V_barangay_name); ?> are listed.</div>
                 </div>
             </div>
 
-            <div id="headcountSection" style="display: <?php echo ($V_report['evacuation_needed'] == 'Yes' && $V_selected_center_id > 0) ? 'block' : 'none'; ?>;">
+            <div id="headcountSection" style="display: <?php echo ($V_report['evacuation_needed'] == 'Yes' && $V_selected_center_present) ? 'block' : 'none'; ?>;">
                 <hr>
                 <h3 class="form-section-title">Evacuation Headcount</h3>
                 <div class="simple-note mb-2">Quick headcount at the evacuation center. Used by Municipal for supply coordination and DSWD reporting.</div>
