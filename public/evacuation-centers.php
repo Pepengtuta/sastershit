@@ -22,18 +22,10 @@ if ($V_role == 'barangay') {
     }
     $V_bind_types .= "s";
     $V_params[] = $V_barangay_name;
-    // Scope by the barangay's municipality to prevent cross-municipality name collisions
-    $muni_stmt = mysqli_prepare($connection, "SELECT municipality FROM barangays WHERE name = ? LIMIT 1");
-    if ($muni_stmt) {
-        mysqli_stmt_bind_param($muni_stmt, "s", $V_barangay_name);
-        mysqli_stmt_execute($muni_stmt);
-        $muni_result = mysqli_stmt_get_result($muni_stmt);
-        if ($muni_row = mysqli_fetch_assoc($muni_result)) {
-            $V_where .= " AND evacuation_centers.municipality = ?";
-            $V_bind_types .= "s";
-            $V_params[] = $muni_row['municipality'];
-        }
-    }
+    // Scope by the account's municipality to prevent cross-municipality name collisions.
+    $V_where .= " AND evacuation_centers.municipality = ?";
+    $V_bind_types .= "s";
+    $V_params[] = $_SESSION['municipality'] ?? '';
 }
 
 // Municipality filter for admin roles (direct column filter, forces muni for MDR sub-roles)

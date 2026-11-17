@@ -55,7 +55,7 @@ if ($contact_number !== '' && !preg_match('/[0-9]/', $contact_number)) {
 // Resolve barangay name and municipality from barangay_id
 if ($barangay_id > 0) {
     $q = mysqli_prepare($connection, "SELECT name, municipality FROM barangays WHERE id=? LIMIT 1");
-    if ($q) { mysqli_stmt_bind_param($q, "i", $barangay_id); mysqli_stmt_execute($q); $res=mysqli_stmt_get_result($q); if ($row=mysqli_fetch_assoc($res)) { $barangay=$row['name']; if ($municipality === '') $municipality=$row['municipality']; } }
+    if ($q) { mysqli_stmt_bind_param($q, "i", $barangay_id); mysqli_stmt_execute($q); $res=mysqli_stmt_get_result($q); if ($row=mysqli_fetch_assoc($res)) { $barangay=$row['name']; $municipality=$row['municipality']; } }
 }
 if ($barangay === '' && $barangay_id > 0) {
     $q = mysqli_prepare($connection, "SELECT name FROM barangays WHERE id=? LIMIT 1");
@@ -70,8 +70,8 @@ if ($actorRow['role'] === 'barangay') {
     if ((int)($actorRow['barangay_id'] ?? 0) !== $barangay_id) {
         send_response(false, "You may only update evacuation centers in your own barangay.");
     }
-    $scopeStmt = mysqli_prepare($connection, "SELECT id FROM evacuation_centers WHERE id = ? AND barangay = ? LIMIT 1");
-    mysqli_stmt_bind_param($scopeStmt, "is", $id, $barangay);
+    $scopeStmt = mysqli_prepare($connection, "SELECT id FROM evacuation_centers ec JOIN barangays b ON b.id = ? AND b.name = ec.barangay AND b.municipality = ec.municipality WHERE ec.id = ? LIMIT 1");
+    mysqli_stmt_bind_param($scopeStmt, "ii", $barangay_id, $id);
     mysqli_stmt_execute($scopeStmt);
     if (!mysqli_fetch_assoc(mysqli_stmt_get_result($scopeStmt))) {
         send_response(false, "You may only update evacuation centers in your own barangay.");

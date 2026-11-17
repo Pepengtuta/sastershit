@@ -134,6 +134,17 @@ if ($evacuation_needed === 'No' || $evacuation_center_id === null || $evacuation
     $evacuation_center_id = (int)$evacuation_center_id;
 }
 
+if ($evacuation_center_id !== null) {
+    $centerStmt = mysqli_prepare($connection,
+        "SELECT 1 FROM evacuation_centers ec JOIN barangays b ON b.id = ? AND b.name = ec.barangay AND b.municipality = ec.municipality WHERE ec.id = ? LIMIT 1");
+    if (!$centerStmt) send_response(false, "Failed to verify evacuation center.");
+    mysqli_stmt_bind_param($centerStmt, "ii", $barangay_id, $evacuation_center_id);
+    mysqli_stmt_execute($centerStmt);
+    if (!mysqli_fetch_assoc(mysqli_stmt_get_result($centerStmt))) {
+        send_response(false, "Selected evacuation center is not in your barangay.");
+    }
+}
+
 // Soft flag: does the saved pin fall outside the reporting barangay's boundary?
 $pin_outside = incident_pin_outside_flag($connection, $barangay_id, '', $latitude, $longitude);
 $has_pin_outside = column_exists($connection, 'incident_reports', 'pin_outside_area');

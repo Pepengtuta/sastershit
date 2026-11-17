@@ -36,8 +36,8 @@ if ($id <= 0) send_response(false, "Invalid evacuation center ID.");
 if ($actorRow['role'] === 'barangay') {
     $V_actor_barangay_id = (int)$actorRow['barangay_id'];
     $scopeStmt = mysqli_prepare($connection,
-        "SELECT 1 FROM evacuation_centers ec JOIN barangays b ON b.name = ec.barangay WHERE ec.id = ? AND b.id = ? LIMIT 1");
-    mysqli_stmt_bind_param($scopeStmt, "ii", $id, $V_actor_barangay_id);
+        "SELECT 1 FROM evacuation_centers ec JOIN barangays b ON b.id = ? AND b.name = ec.barangay AND b.municipality = ec.municipality WHERE ec.id = ? LIMIT 1");
+    mysqli_stmt_bind_param($scopeStmt, "ii", $V_actor_barangay_id, $id);
     mysqli_stmt_execute($scopeStmt);
     if (!mysqli_fetch_assoc(mysqli_stmt_get_result($scopeStmt))) {
         send_response(false, "You may only delete evacuation centers in your own barangay.");

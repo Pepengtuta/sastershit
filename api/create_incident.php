@@ -104,7 +104,7 @@ if ($user_id <= 0) send_response(false, "User ID is required.");
 if ($barangay_id <= 0) send_response(false, "Barangay ID is required.");
 
 // Role enforcement: only an Active barangay account may submit incident reports.
-$actorStmt = mysqli_prepare($connection, "SELECT role, status FROM users WHERE id = ? LIMIT 1");
+$actorStmt = mysqli_prepare($connection, "SELECT role, status, barangay_id FROM users WHERE id = ? LIMIT 1");
 mysqli_stmt_bind_param($actorStmt, "i", $user_id);
 mysqli_stmt_execute($actorStmt);
 $actorRow = mysqli_fetch_assoc(mysqli_stmt_get_result($actorStmt));
@@ -124,6 +124,18 @@ if ($evacuation_needed === 'No' || $evacuation_center_id === null || $evacuation
     $evacuation_center_id = null;
 } else {
     $evacuation_center_id = (int)$evacuation_center_id;
+}
+
+if ($evacuation_center_id !== null) {
+    $centerStmt = mysqli_prepare($connection,
+        "SELECT 1 FROM evacuation_centers ec JOIN barangays b ON b.id = ? AND b.name = ec.barangay AND b.municipality = ec.municipality WHERE ec.id = ? LIMIT 1");
+    if (!$centerStmt) send_response(false, "Failed to verify evacuation center.");
+    $actorBarangayId = (int)($actorRow['barangay_id'] ?? 0);
+    mysqli_stmt_bind_param($centerStmt, "ii", $actorBarangayId, $evacuation_center_id);
+    mysqli_stmt_execute($centerStmt);
+    if (!mysqli_fetch_assoc(mysqli_stmt_get_result($centerStmt))) {
+        send_response(false, "Selected evacuation center is not in your barangay.");
+    }
 }
 
 // Soft flag: does the saved pin fall outside the reporting barangay's boundary?
