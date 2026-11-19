@@ -14,7 +14,7 @@ if (!can_view_assistance($V_role)) {
 
 $V_can_pledge   = can_pledge_assistance($V_role, $V_sub_role);
 $V_acting_user_id = (int)($_SESSION['user_id'] ?? 0);
-$V_prov_override  = ($V_role === 'superadmin') || ($V_role === 'pho' && strtolower(trim((string)$V_sub_role)) !== 'governor');
+$V_prov_override  = ($V_role === 'superadmin');
 $V_board_muni   = get_effective_municipality($V_role, $V_sub_role);
 $V_muni_where   = '';
 $V_muni_bind    = '';

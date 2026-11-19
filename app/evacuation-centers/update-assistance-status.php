@@ -33,9 +33,8 @@ if (($V_muni = mdr_municipality($V_role, $V_sub_role)) && $donation['ec_muni'] !
 
 $V_user_id = (int)($_SESSION['user_id'] ?? 0);
 
-// Only the donor, a provincial office (PHO admin / PDRRMO - not the Governor),
-// or superadmin DB owner may advance the status.
-$V_prov_override = ($V_role === 'superadmin') || ($V_role === 'pho' && strtolower(trim((string)$V_sub_role)) !== 'governor');
+// Only the donor or the superadmin DB owner may advance the status.
+$V_prov_override = ($V_role === 'superadmin');
 if ((int)$donation['donor_user_id'] !== $V_user_id && !$V_prov_override) {
     header("Location: ../../public/assistance.php?denied=1");
     exit;

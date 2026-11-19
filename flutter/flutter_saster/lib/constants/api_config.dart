@@ -12,10 +12,10 @@ class ApiConfig {
 
   
 
-# Local LAN
+// Local LAN
 // flutter build apk --release --dart-define=API_BASE_URL=http://192.168.123.103/vsp/sastergpt
 
-# Ngrok (https)
+// Ngrok (https)
 // flutter build apk --release --dart-define=API_BASE_URL=https://cloud-prognosis-boogeyman.ngrok-free.dev/vsp/sastergpt
 
 // -----Flip--to-True-----useNgrokHeader = true; for tunnel for ngrok browser warning shit
