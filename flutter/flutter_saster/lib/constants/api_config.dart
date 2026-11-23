@@ -4,7 +4,7 @@ class ApiConfig {
   // Falls back to the current Railway deployment when not provided.
   static const String _root = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://ugyon-production.up.railway.app',
+    defaultValue: 'https://ugyon.up.railway.app',
   );
 
   static const String baseUrl = '$_root/api';
